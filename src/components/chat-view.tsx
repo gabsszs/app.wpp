@@ -117,8 +117,8 @@ export function ChatView({ conversation, loggedInUser, onSendMessage }: ChatView
 
 
   return (
-    <div className="flex h-screen flex-col">
-      <header className="relative flex items-center justify-between border-b bg-background p-4">
+    <div className="relative flex h-screen flex-col">
+       <header className="flex items-center justify-between border-b bg-background p-4">
         <div className="flex items-center gap-3">
           <SidebarTrigger className="md:hidden">
             <ChevronLeft />
@@ -131,33 +131,6 @@ export function ChatView({ conversation, loggedInUser, onSendMessage }: ChatView
             <p className="font-semibold">{client.name}</p>
             <p className="text-sm text-muted-foreground">{client.status}</p>
           </div>
-        </div>
-
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant={"ghost"}
-                className={cn(
-                  "w-auto justify-center text-sm font-medium hover:bg-muted",
-                  !selectedDate && "text-muted-foreground"
-                )}
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {formatSelectedDate(selectedDate)}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="center">
-              <Calendar
-                mode="single"
-                selected={selectedDate}
-                onSelect={setSelectedDate}
-                initialFocus
-                locale={ptBR}
-                disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
-              />
-            </PopoverContent>
-          </Popover>
         </div>
         
         <div className="flex items-center gap-2">
@@ -173,7 +146,34 @@ export function ChatView({ conversation, loggedInUser, onSendMessage }: ChatView
         </div>
       </header>
 
-      <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
+      <div className="absolute left-1/2 top-4 z-10 -translate-x-1/2">
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant={"ghost"}
+              className={cn(
+                "w-auto justify-center rounded-full bg-background/80 text-sm font-medium shadow-md backdrop-blur-sm hover:bg-muted",
+                !selectedDate && "text-muted-foreground"
+              )}
+            >
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {formatSelectedDate(selectedDate)}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="center">
+            <Calendar
+              mode="single"
+              selected={selectedDate}
+              onSelect={setSelectedDate}
+              initialFocus
+              locale={ptBR}
+              disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+            />
+          </PopoverContent>
+        </Popover>
+      </div>
+
+      <ScrollArea className="flex-1 p-4 pt-16" ref={scrollAreaRef}>
         <div className="space-y-4">
           {filteredMessages.length > 0 ? (
              filteredMessages.map((msg) => {
