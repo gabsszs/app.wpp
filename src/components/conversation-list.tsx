@@ -2,7 +2,7 @@
 
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Search, User, Users } from 'lucide-react';
+import { Search, User, Users, Settings } from 'lucide-react';
 import {
   SidebarHeader,
   SidebarContent,
@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { Conversation, User as TUser } from '@/lib/types';
 import { users } from '@/lib/mock-data';
+import Link from 'next/link';
 
 interface ConversationListProps {
   conversations: Conversation[];
@@ -66,7 +67,7 @@ export function ConversationList({
                   isActive={selectedConversation?.id === conv.id}
                   className={cn(
                     "w-full h-auto justify-start p-2",
-                    selectedConversation?.id === conv.id && "bg-primary/10 text-primary-foreground"
+                    selectedConversation?.id === conv.id && "bg-sidebar-accent text-sidebar-accent-foreground"
                   )}
                 >
                   <Avatar className="h-10 w-10">
@@ -91,13 +92,19 @@ export function ConversationList({
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter>
-        <Button variant="outline" className="w-full justify-start gap-2">
-          <User className="h-4 w-4" />
-          <span>Contatos</span>
-        </Button>
+        <Link href="/contacts" passHref>
+          <Button variant="outline" className="w-full justify-start gap-2">
+            <User className="h-4 w-4" />
+            <span>Contatos</span>
+          </Button>
+        </Link>
         <Button variant="outline" className="w-full justify-start gap-2">
           <Users className="h-4 w-4" />
           <span>Equipes</span>
+        </Button>
+         <Button variant="outline" className="w-full justify-start gap-2">
+          <Settings className="h-4 w-4" />
+          <span>Configurações</span>
         </Button>
       </SidebarFooter>
     </>
