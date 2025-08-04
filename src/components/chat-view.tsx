@@ -152,7 +152,7 @@ export function ChatView({ conversation, loggedInUser, onSendMessage }: ChatView
             <Button
               variant={"ghost"}
               className={cn(
-                "w-auto justify-center rounded-full bg-background/80 text-sm font-medium shadow-md backdrop-blur-sm hover:bg-muted",
+                "w-auto justify-center rounded-full bg-background/80 text-sm font-medium shadow-lg backdrop-blur-sm hover:bg-muted",
                 !selectedDate && "text-muted-foreground"
               )}
             >
