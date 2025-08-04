@@ -22,8 +22,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SidebarTrigger } from '@/components/ui/sidebar';
-import { format } from 'date-fns';
+import { format, isToday, isYesterday, differenceInCalendarDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
 
 interface ChatViewProps {
   conversation: Conversation | null;
@@ -48,7 +49,7 @@ export function ChatView({ conversation, loggedInUser, onSendMessage }: ChatView
         behavior: 'smooth',
       });
     }
-  }, [conversation?.messages]);
+  }, [conversation?.messages, selectedDate]);
   
   const handleSend = () => {
     if (message.trim() && conversation) {
@@ -85,6 +86,20 @@ export function ChatView({ conversation, loggedInUser, onSendMessage }: ChatView
     }
   };
 
+  const formatSelectedDate = (date: Date | undefined): string => {
+    if (!date) return "Escolha uma data";
+    if (isToday(date)) return "Hoje";
+    if (isYesterday(date)) return "Ontem";
+    
+    const diffDays = differenceInCalendarDays(new Date(), date);
+    if (diffDays >= 1 && diffDays < 7) {
+      const dayName = format(date, "eeee", { locale: ptBR });
+      return dayName.charAt(0).toUpperCase() + dayName.slice(1);
+    }
+
+    return format(date, "PPP", { locale: ptBR });
+  };
+
   if (!conversation || !client) {
     return (
       <div className="flex h-full items-center justify-center bg-muted/30">
@@ -103,7 +118,7 @@ export function ChatView({ conversation, loggedInUser, onSendMessage }: ChatView
 
   return (
     <div className="flex h-screen flex-col">
-      <header className="flex items-center justify-between border-b bg-background p-4">
+      <header className="relative flex items-center justify-between border-b bg-background p-4">
         <div className="flex items-center gap-3">
           <SidebarTrigger className="md:hidden">
             <ChevronLeft />
@@ -117,26 +132,34 @@ export function ChatView({ conversation, loggedInUser, onSendMessage }: ChatView
             <p className="text-sm text-muted-foreground">{client.status}</p>
           </div>
         </div>
-         <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant={"outline"}
-              className="w-[200px] justify-center text-left font-normal"
-            >
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {selectedDate ? format(selectedDate, "PPP", { locale: ptBR }) : <span>Escolha uma data</span>}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="center">
-            <Calendar
-              mode="single"
-              selected={selectedDate}
-              onSelect={setSelectedDate}
-              initialFocus
-              locale={ptBR}
-            />
-          </PopoverContent>
-        </Popover>
+
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant={"ghost"}
+                className={cn(
+                  "w-auto justify-center text-sm font-medium hover:bg-muted",
+                  !selectedDate && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {formatSelectedDate(selectedDate)}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="center">
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={setSelectedDate}
+                initialFocus
+                locale={ptBR}
+                disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+        
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon">
             <Phone className="h-5 w-5" />
@@ -152,12 +175,19 @@ export function ChatView({ conversation, loggedInUser, onSendMessage }: ChatView
 
       <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
         <div className="space-y-4">
-          {filteredMessages.map((msg) => {
-            const sender = getSender(msg.senderId);
-            return (
-              <MessageBubble key={msg.id} message={msg} sender={sender} loggedInUserId={loggedInUser.id} />
-            )
-          })}
+          {filteredMessages.length > 0 ? (
+             filteredMessages.map((msg) => {
+              const sender = getSender(msg.senderId);
+              return (
+                <MessageBubble key={msg.id} message={msg} sender={sender} loggedInUserId={loggedInUser.id} />
+              )
+            })
+          ) : (
+             <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
+                <p>Nenhuma mensagem em</p>
+                <p className="font-medium">{formatSelectedDate(selectedDate)}</p>
+              </div>
+          )}
         </div>
       </ScrollArea>
 
