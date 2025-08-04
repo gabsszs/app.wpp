@@ -3,7 +3,7 @@
 
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Search, User, Users, Settings, FileText } from 'lucide-react';
+import { Search, User, Users, Settings, FileText, LogOut } from 'lucide-react';
 import {
   SidebarHeader,
   SidebarContent,
@@ -41,16 +41,7 @@ export function ConversationList({
     <>
       <SidebarHeader>
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Avatar>
-              <AvatarImage src={loggedInUser.avatarUrl} alt={loggedInUser.name} />
-              <AvatarFallback>{loggedInUser.name.charAt(0)}</AvatarFallback>
-            </Avatar>
-            <div className="flex flex-col">
-              <span className="font-semibold text-foreground">{loggedInUser.name}</span>
-              <span className="text-sm text-muted-foreground">{loggedInUser.email}</span>
-            </div>
-          </div>
+            <h2 className="text-xl font-bold">Conversas</h2>
           <Link href="/contacts" passHref>
              <Button variant="ghost" size="icon">
                 <User className="h-5 w-5" />
@@ -100,24 +91,42 @@ export function ConversationList({
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter>
-        {loggedInUser.role !== 'agent' && (
-          <>
-            <Link href="/templates" passHref>
-              <Button variant="outline" className="w-full justify-start gap-2">
-                <FileText className="h-4 w-4" />
-                <span>Templates</span>
-              </Button>
-            </Link>
-            <Button variant="outline" className="w-full justify-start gap-2">
-              <Users className="h-4 w-4" />
-              <span>Equipes</span>
-            </Button>
-            <Button variant="outline" className="w-full justify-start gap-2">
-              <Settings className="h-4 w-4" />
-              <span>Configurações</span>
-            </Button>
-          </>
-        )}
+        <div className="flex flex-col gap-2">
+            {loggedInUser.role !== 'agent' && (
+              <>
+                <Link href="/templates" passHref>
+                  <Button variant="outline" className="w-full justify-start gap-2">
+                    <FileText className="h-4 w-4" />
+                    <span>Templates</span>
+                  </Button>
+                </Link>
+                <Button variant="outline" className="w-full justify-start gap-2">
+                  <Users className="h-4 w-4" />
+                  <span>Equipes</span>
+                </Button>
+                <Button variant="outline" className="w-full justify-start gap-2">
+                  <Settings className="h-4 w-4" />
+                  <span>Configurações</span>
+                </Button>
+                <Separator />
+              </>
+            )}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Avatar>
+                  <AvatarImage src={loggedInUser.avatarUrl} alt={loggedInUser.name} />
+                  <AvatarFallback>{loggedInUser.name.charAt(0)}</AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col">
+                  <span className="font-semibold text-foreground">{loggedInUser.name}</span>
+                  <span className="text-sm text-muted-foreground">{loggedInUser.email}</span>
+                </div>
+              </div>
+               <Button variant="ghost" size="icon">
+                  <LogOut className="h-5 w-5" />
+               </Button>
+            </div>
+        </div>
       </SidebarFooter>
     </>
   );
