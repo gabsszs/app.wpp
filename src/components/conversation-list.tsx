@@ -15,6 +15,13 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import {
   SidebarHeader,
   SidebarContent,
   SidebarMenu,
@@ -93,9 +100,9 @@ export function ConversationList({
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
                       <Label htmlFor="name" className="text-right">
-                        Nome (Opcional)
+                        Nome
                       </Label>
-                      <Input id="name" placeholder="Nome do contato" className="col-span-3" />
+                      <Input id="name" placeholder="Nome do contato (Opcional)" className="col-span-3" />
                     </div>
                   </div>
                   <DialogFooter>
@@ -171,30 +178,36 @@ export function ConversationList({
                   <Users className="h-4 w-4" />
                   <span className={cn(state === 'collapsed' && "hidden")}>Equipes</span>
                 </Button>
-                <Button variant="outline" className="w-full justify-start gap-2">
-                  <Settings className="h-4 w-4" />
-                  <span className={cn(state === 'collapsed' && "hidden")}>Configurações</span>
-                </Button>
-                <Separator />
               </>
             )}
+             <Separator />
             <div className={cn("flex items-center w-full", state === 'collapsed' ? 'justify-center' : 'justify-between')}>
-              <div className="flex items-center gap-3">
-                <Avatar>
-                  <AvatarImage src={loggedInUser.avatarUrl} alt={loggedInUser.name} />
-                  <AvatarFallback>{loggedInUser.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <div className={cn("flex flex-col", state === 'collapsed' && "hidden")}>
-                  <span className="font-semibold text-foreground">{loggedInUser.name}</span>
-                  <span className="text-sm text-muted-foreground">{loggedInUser.email}</span>
-                </div>
-              </div>
-              <div className="flex items-center">
-                <Button variant="ghost" size="icon" className={cn(state === 'collapsed' && "hidden")}>
-                    <LogOut className="h-5 w-5" />
-                </Button>
-                <SidebarTrigger className="hidden md:flex" />
-              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className={cn("flex items-center gap-3 w-full", state === 'collapsed' ? 'justify-center p-2' : 'justify-start p-2')}>
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={loggedInUser.avatarUrl} alt={loggedInUser.name} />
+                      <AvatarFallback>{loggedInUser.name.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                    <div className={cn("flex flex-col items-start", state === 'collapsed' && "hidden")}>
+                      <span className="font-semibold text-foreground text-sm">{loggedInUser.name}</span>
+                      <span className="text-xs text-muted-foreground">{loggedInUser.email}</span>
+                    </div>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56 mb-2" align="end" forceMount>
+                   <DropdownMenuItem>
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Configurações</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Sair</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+                <SidebarTrigger className={cn("hidden md:flex", state === 'collapsed' && "hidden")} />
             </div>
         </div>
       </SidebarFooter>
