@@ -71,8 +71,8 @@ export default function ChatLayout({ conversations, loggedInUser }: ChatLayoutPr
             loggedInUser={loggedInUser}
           />
         </Sidebar>
-        <SidebarInset className="flex-1">
-          <div className='absolute top-2 left-2'>
+        <SidebarInset className="flex-1 relative">
+          <div className='absolute top-4 left-4 z-20'>
             <SidebarTrigger />
           </div>
           <ChatView

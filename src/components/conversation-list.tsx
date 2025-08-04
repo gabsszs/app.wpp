@@ -11,7 +11,6 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarFooter,
-  SidebarMenuBadge,
 } from '@/components/ui/sidebar';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -61,7 +60,7 @@ export function ConversationList({
         </div>
       </SidebarHeader>
       <Separator />
-      <SidebarContent>
+      <SidebarContent className='p-2'>
         <SidebarMenu>
           {conversations.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()).map((conv) => {
             const client = getClient(conv.clientId);
