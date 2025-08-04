@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import type { Conversation, User } from '@/lib/types';
-import { SidebarProvider, Sidebar, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
+import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar';
 import { ConversationList } from './conversation-list';
 import { ChatView } from './chat-view';
 
@@ -72,9 +72,6 @@ export default function ChatLayout({ conversations, loggedInUser }: ChatLayoutPr
           />
         </Sidebar>
         <SidebarInset className="flex-1 relative">
-          <div className='absolute top-4 left-4 z-20'>
-            <SidebarTrigger />
-          </div>
           <ChatView
             conversation={selectedConversation}
             loggedInUser={loggedInUser}

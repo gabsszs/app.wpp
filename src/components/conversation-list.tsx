@@ -11,6 +11,8 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarFooter,
+  SidebarTrigger,
+  useSidebar,
 } from '@/components/ui/sidebar';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -36,7 +38,7 @@ export function ConversationList({
   onSelectConversation,
   loggedInUser,
 }: ConversationListProps) {
-
+  const { state } = useSidebar();
   const getClient = (clientId: string) => users.find(u => u.id === clientId);
 
   const getUnreadCount = (messages: Message[]) => {
@@ -47,14 +49,14 @@ export function ConversationList({
     <>
       <SidebarHeader>
         <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold">Conversas</h2>
+            <h2 className={cn("text-xl font-bold", state === 'collapsed' && "hidden")}>Conversas</h2>
           <Link href="/contacts" passHref>
              <Button variant="ghost" size="icon">
                 <User className="h-5 w-5" />
              </Button>
           </Link>
         </div>
-        <div className="relative">
+        <div className={cn("relative", state === 'collapsed' && "hidden")}>
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input placeholder="Buscar conversas..." className="pl-8" />
         </div>
@@ -71,9 +73,8 @@ export function ConversationList({
                 <SidebarMenuButton
                   onClick={() => onSelectConversation(conv)}
                   isActive={selectedConversation?.id === conv.id}
-                  className={cn(
-                    "w-full h-auto justify-start p-2 gap-3"
-                  )}
+                  className="w-full h-auto justify-start p-2 gap-3"
+                  tooltip={client?.name}
                 >
                   <Avatar className="h-10 w-10">
                     <AvatarImage src={client?.avatarUrl} alt={client?.name} />
@@ -91,10 +92,10 @@ export function ConversationList({
                     </p>
                   </div>
                   {unreadCount > 0 && (
-                    <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
-                      {unreadCount}
-                    </Badge>
-                  )}
+                     <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
+                       {unreadCount}
+                     </Badge>
+                   )}
                 </SidebarMenuButton>
               </SidebarMenuItem>
             );
@@ -102,40 +103,43 @@ export function ConversationList({
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter>
-        <div className="flex flex-col gap-2">
+        <div className={cn("flex flex-col gap-2", state === 'collapsed' && "items-center")}>
             {loggedInUser.role !== 'agent' && (
               <>
                 <Link href="/templates" passHref>
                   <Button variant="outline" className="w-full justify-start gap-2">
                     <FileText className="h-4 w-4" />
-                    <span>Templates</span>
+                    <span className={cn(state === 'collapsed' && "hidden")}>Templates</span>
                   </Button>
                 </Link>
                 <Button variant="outline" className="w-full justify-start gap-2">
                   <Users className="h-4 w-4" />
-                  <span>Equipes</span>
+                  <span className={cn(state === 'collapsed' && "hidden")}>Equipes</span>
                 </Button>
                 <Button variant="outline" className="w-full justify-start gap-2">
                   <Settings className="h-4 w-4" />
-                  <span>Configurações</span>
+                  <span className={cn(state === 'collapsed' && "hidden")}>Configurações</span>
                 </Button>
                 <Separator />
               </>
             )}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between w-full">
               <div className="flex items-center gap-3">
                 <Avatar>
                   <AvatarImage src={loggedInUser.avatarUrl} alt={loggedInUser.name} />
                   <AvatarFallback>{loggedInUser.name.charAt(0)}</AvatarFallback>
                 </Avatar>
-                <div className="flex flex-col">
+                <div className={cn("flex flex-col", state === 'collapsed' && "hidden")}>
                   <span className="font-semibold text-foreground">{loggedInUser.name}</span>
                   <span className="text-sm text-muted-foreground">{loggedInUser.email}</span>
                 </div>
               </div>
-               <Button variant="ghost" size="icon">
-                  <LogOut className="h-5 w-5" />
-               </Button>
+              <div className="flex items-center">
+                <Button variant="ghost" size="icon" className={cn(state === 'collapsed' && "hidden")}>
+                    <LogOut className="h-5 w-5" />
+                </Button>
+                <SidebarTrigger className="hidden md:flex" />
+              </div>
             </div>
         </div>
       </SidebarFooter>

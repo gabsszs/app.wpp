@@ -18,6 +18,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { SidebarTrigger } from '@/components/ui/sidebar';
 
 interface ChatViewProps {
   conversation: Conversation | null;
@@ -90,8 +91,9 @@ export function ChatView({ conversation, loggedInUser, onSendMessage }: ChatView
 
   return (
     <div className="flex h-screen flex-col">
-      <header className="flex items-center justify-between border-b bg-background p-4 pl-16">
+      <header className="flex items-center justify-between border-b bg-background p-4">
         <div className="flex items-center gap-3">
+          <SidebarTrigger className="md:hidden" />
           <Avatar>
             <AvatarImage src={client.avatarUrl} alt={client.name} />
             <AvatarFallback>{client.name.charAt(0)}</AvatarFallback>
