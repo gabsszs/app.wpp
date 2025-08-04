@@ -1,9 +1,19 @@
 
 'use client';
 
+import { useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Search, User, Users, Settings, FileText, LogOut } from 'lucide-react';
+import { Search, User, Users, Settings, FileText, LogOut, PlusCircle } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog"
 import {
   SidebarHeader,
   SidebarContent,
@@ -15,6 +25,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { Input } from '@/components/ui/input';
+import { Label } from "@/components/ui/label"
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
@@ -40,9 +51,17 @@ export function ConversationList({
 }: ConversationListProps) {
   const { state } = useSidebar();
   const getClient = (clientId: string) => users.find(u => u.id === clientId);
+  const [openNewChatDialog, setOpenNewChatDialog] = useState(false);
 
   const getUnreadCount = (messages: Message[]) => {
     return messages.filter(m => m.senderId !== loggedInUser.id && m.status !== 'read').length;
+  }
+
+  const handleCreateNewChat = (event: React.FormEvent) => {
+    event.preventDefault();
+    // Lógica para criar novo chat aqui
+    console.log("Novo chat criado!");
+    setOpenNewChatDialog(false);
   }
 
   return (
@@ -50,11 +69,47 @@ export function ConversationList({
       <SidebarHeader>
         <div className="flex items-center justify-between">
             <h2 className={cn("text-xl font-bold", state === 'collapsed' && "hidden")}>Conversas</h2>
-          <Link href="/contacts" passHref>
-             <Button variant="ghost" size="icon">
-                <User className="h-5 w-5" />
-             </Button>
-          </Link>
+          <div className="flex items-center">
+            <Dialog open={openNewChatDialog} onOpenChange={setOpenNewChatDialog}>
+              <DialogTrigger asChild>
+                 <Button variant="ghost" size="icon">
+                    <PlusCircle className="h-5 w-5" />
+                 </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Iniciar Nova Conversa</DialogTitle>
+                  <DialogDescription>
+                    Adicione um novo contato para começar a conversar.
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleCreateNewChat}>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="name" className="text-right">
+                        Nome
+                      </Label>
+                      <Input id="name" placeholder="Nome do contato" className="col-span-3" />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="phone" className="text-right">
+                        Telefone
+                      </Label>
+                      <Input id="phone" placeholder="(99) 99999-9999" className="col-span-3" />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button type="submit">Iniciar Conversa</Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
+            <Link href="/contacts" passHref>
+               <Button variant="ghost" size="icon">
+                  <User className="h-5 w-5" />
+               </Button>
+            </Link>
+          </div>
         </div>
         <div className={cn("relative", state === 'collapsed' && "hidden")}>
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
