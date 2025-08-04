@@ -186,7 +186,7 @@ export function ConversationList({
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className={cn("flex items-center gap-3 w-full", state === 'collapsed' ? 'justify-center p-2' : 'justify-start p-2')}>
-                    <Avatar className="h-8 w-8">
+                    <Avatar className={cn("h-8 w-8", state === 'collapsed' && "hidden")}>
                       <AvatarImage src={loggedInUser.avatarUrl} alt={loggedInUser.name} />
                       <AvatarFallback>{loggedInUser.name.charAt(0)}</AvatarFallback>
                     </Avatar>
@@ -194,9 +194,12 @@ export function ConversationList({
                       <span className="font-semibold text-foreground text-sm">{loggedInUser.name}</span>
                       <span className="text-xs text-muted-foreground">{loggedInUser.email}</span>
                     </div>
+                     <div className={cn(state !== 'collapsed' && "hidden")}>
+                      <Settings className="h-5 w-5" />
+                    </div>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-64 mb-2" align="end" forceMount sideOffset={10}>
+                <DropdownMenuContent className="w-64 mb-2" align="end" sideOffset={10}>
                    <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
                       <p className="text-sm font-medium leading-none">{loggedInUser.company}</p>
