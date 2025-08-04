@@ -18,6 +18,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { SidebarTrigger } from './ui/sidebar';
 
 interface ChatViewProps {
   conversation: Conversation | null;
@@ -81,6 +82,7 @@ export function ChatView({ conversation, loggedInUser, onSendMessage }: ChatView
     return (
       <div className="flex h-full items-center justify-center bg-muted/30">
         <div className="text-center">
+            <SidebarTrigger className="md:hidden absolute top-4 left-4" />
           <h2 className="text-2xl font-bold tracking-tight">Bem-vindo ao ConectaZap</h2>
           <p className="text-muted-foreground">Selecione uma conversa para começar a conversar.</p>
         </div>
@@ -92,6 +94,7 @@ export function ChatView({ conversation, loggedInUser, onSendMessage }: ChatView
     <div className="flex h-screen flex-col">
       <header className="flex items-center justify-between border-b bg-background p-4">
         <div className="flex items-center gap-3">
+          <SidebarTrigger className="md:hidden" />
           <Avatar>
             <AvatarImage src={client.avatarUrl} alt={client.name} />
             <AvatarFallback>{client.name.charAt(0)}</AvatarFallback>

@@ -11,15 +11,18 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarFooter,
+  SidebarMenuBadge,
 } from '@/components/ui/sidebar';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import type { Conversation, User as TUser } from '@/lib/types';
+import type { Conversation, User as TUser, Message } from '@/lib/types';
 import { users } from '@/lib/mock-data';
 import Link from 'next/link';
+import { Badge } from '@/components/ui/badge';
+
 
 interface ConversationListProps {
   conversations: Conversation[];
@@ -36,6 +39,10 @@ export function ConversationList({
 }: ConversationListProps) {
 
   const getClient = (clientId: string) => users.find(u => u.id === clientId);
+
+  const getUnreadCount = (messages: Message[]) => {
+    return messages.filter(m => m.senderId !== loggedInUser.id && m.status !== 'read').length;
+  }
 
   return (
     <>
@@ -59,14 +66,14 @@ export function ConversationList({
           {conversations.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()).map((conv) => {
             const client = getClient(conv.clientId);
             const lastMessage = conv.messages[conv.messages.length - 1];
+            const unreadCount = getUnreadCount(conv.messages);
             return (
               <SidebarMenuItem key={conv.id}>
                 <SidebarMenuButton
                   onClick={() => onSelectConversation(conv)}
                   isActive={selectedConversation?.id === conv.id}
                   className={cn(
-                    "w-full h-auto justify-start p-2",
-                    selectedConversation?.id === conv.id && "bg-sidebar-accent text-sidebar-accent-foreground"
+                    "w-full h-auto justify-start p-2 gap-3"
                   )}
                 >
                   <Avatar className="h-10 w-10">
@@ -84,6 +91,11 @@ export function ConversationList({
                       {lastMessage?.content}
                     </p>
                   </div>
+                  {unreadCount > 0 && (
+                    <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
+                      {unreadCount}
+                    </Badge>
+                  )}
                 </SidebarMenuButton>
               </SidebarMenuItem>
             );
