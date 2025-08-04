@@ -136,7 +136,10 @@ export function ConversationList({
                 <SidebarMenuButton
                   onClick={() => onSelectConversation(conv)}
                   isActive={selectedConversation?.id === conv.id}
-                  className="w-full h-auto justify-start p-2 gap-3"
+                  className={cn(
+                    "w-full h-auto justify-start p-2 gap-3",
+                    state === 'collapsed' && "data-[active=true]:bg-transparent"
+                  )}
                   tooltip={client?.name}
                 >
                   <div className="relative">
