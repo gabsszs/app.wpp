@@ -146,7 +146,7 @@ export function ChatView({ conversation, loggedInUser, onSendMessage }: ChatView
         </div>
       </header>
 
-      <div className="absolute left-1/2 top-4 z-10 -translate-x-1/2">
+      <div className="absolute left-1/2 top-20 z-10 -translate-x-1/2">
         <Popover>
           <PopoverTrigger asChild>
             <Button
@@ -173,8 +173,8 @@ export function ChatView({ conversation, loggedInUser, onSendMessage }: ChatView
         </Popover>
       </div>
 
-      <ScrollArea className="flex-1 p-4 pt-16" ref={scrollAreaRef}>
-        <div className="space-y-4">
+      <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
+        <div className="space-y-4 pt-8">
           {filteredMessages.length > 0 ? (
              filteredMessages.map((msg) => {
               const sender = getSender(msg.senderId);
