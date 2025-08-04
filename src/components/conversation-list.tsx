@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Search, User, Users, Settings, FileText, LogOut, PlusCircle } from 'lucide-react';
+import { Search, User, Users, Settings, FileText, LogOut, PlusCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -71,6 +71,8 @@ export function ConversationList({
     console.log("Novo chat criado!");
     setOpenNewChatDialog(false);
   }
+
+  const TriggerIcon = state === 'collapsed' ? ChevronRight : ChevronLeft;
 
   return (
     <>
@@ -148,9 +150,7 @@ export function ConversationList({
                       <AvatarFallback>{client?.name.charAt(0)}</AvatarFallback>
                     </Avatar>
                      {unreadCount > 0 && state === 'collapsed' && (
-                        <Badge className="absolute -top-1 -right-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full p-0">
-                          {unreadCount}
-                        </Badge>
+                        <span className="absolute top-0 right-0 block h-2.5 w-2.5 rounded-full bg-destructive ring-2 ring-background" />
                       )}
                   </div>
                   <div className={cn("flex flex-col items-start text-left flex-grow truncate", state === 'collapsed' && "hidden")}>
@@ -229,7 +229,9 @@ export function ConversationList({
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
-              <SidebarTrigger className={cn("h-7 w-7 hidden md:flex")} />
+              <SidebarTrigger className={cn("h-7 w-7 hidden md:flex")} >
+                 <TriggerIcon />
+              </SidebarTrigger>
             </div>
         </div>
       </SidebarFooter>
