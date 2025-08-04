@@ -31,9 +31,9 @@ export function MessageBubble({ message, loggedInUserId }: MessageBubbleProps) {
       })}
     >
       <div
-        className={cn('max-w-md rounded-xl px-4 py-2', {
+        className={cn('max-w-md rounded-2xl px-4 py-3', {
           'bg-primary text-primary-foreground': isMyMessage,
-          'bg-background shadow-sm': !isMyMessage,
+          'bg-card shadow-sm border': !isMyMessage,
         })}
       >
         <p className="whitespace-pre-wrap">{message.content}</p>

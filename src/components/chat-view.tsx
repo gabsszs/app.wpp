@@ -83,8 +83,8 @@ export function ChatView({ conversation, loggedInUser, onSendMessage }: ChatView
   }
 
   return (
-    <div className="flex h-screen flex-col bg-muted/30">
-      <header className="flex items-center justify-between border-b bg-background p-4 shadow-sm">
+    <div className="flex h-screen flex-col">
+      <header className="flex items-center justify-between border-b bg-background p-4">
         <div className="flex items-center gap-3">
           <Avatar>
             <AvatarImage src={client.avatarUrl} alt={client.name} />
@@ -117,7 +117,7 @@ export function ChatView({ conversation, loggedInUser, onSendMessage }: ChatView
       </ScrollArea>
 
       <footer className="border-t bg-background p-4">
-        <Card>
+        <Card className="rounded-2xl">
           <CardContent className="p-2">
             <div className="grid gap-2">
               <Textarea
