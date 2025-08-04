@@ -79,7 +79,7 @@ export function ConversationList({
     <>
       <SidebarHeader>
         <div className={cn("flex flex-col gap-2", state === 'collapsed' && "items-center")}>
-          <div className="flex items-center gap-1">
+          <div className={cn("flex items-center gap-1", state === 'collapsed' && "flex-col")}>
              <Dialog open={openNewChatDialog} onOpenChange={setOpenNewChatDialog}>
               <Tooltip>
                   <TooltipTrigger asChild>
