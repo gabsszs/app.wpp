@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Sparkles, Phone, Video, Info, Paperclip, Image, FileText, MapPin } from 'lucide-react';
+import { Send, Sparkles, Phone, Video, Info, Paperclip, Image, FileText, MapPin, ChevronLeft } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -93,7 +93,9 @@ export function ChatView({ conversation, loggedInUser, onSendMessage }: ChatView
     <div className="flex h-screen flex-col">
       <header className="flex items-center justify-between border-b bg-background p-4">
         <div className="flex items-center gap-3">
-          <SidebarTrigger className="md:hidden" />
+          <SidebarTrigger className="md:hidden">
+            <ChevronLeft />
+          </SidebarTrigger>
           <Avatar>
             <AvatarImage src={client.avatarUrl} alt={client.name} />
             <AvatarFallback>{client.name.charAt(0)}</AvatarFallback>
