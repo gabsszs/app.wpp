@@ -35,11 +35,6 @@ export function MessageBubble({ message, sender, loggedInUserId }: MessageBubble
         'items-start': !isMyMessage,
       })}
     >
-      {sender && (
-         <p className={cn("text-xs text-muted-foreground mb-1", isMyMessage ? "mr-2" : "ml-2")}>
-            {sender.name}
-         </p>
-      )}
       <div
         className={cn('flex items-end gap-2', {
           'justify-end': isMyMessage,
@@ -54,6 +49,9 @@ export function MessageBubble({ message, sender, loggedInUserId }: MessageBubble
         >
           <p className="whitespace-pre-wrap">{message.content}</p>
           <div className="mt-1 flex items-center justify-end gap-2">
+            {isMyMessage && sender && (
+                <span className="text-xs opacity-70 mr-auto">{sender.name}</span>
+            )}
             <span className="text-xs opacity-70">
               {format(new Date(message.timestamp), 'HH:mm')}
             </span>
