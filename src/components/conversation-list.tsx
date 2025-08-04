@@ -139,11 +139,18 @@ export function ConversationList({
                   className="w-full h-auto justify-start p-2 gap-3"
                   tooltip={client?.name}
                 >
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage src={client?.avatarUrl} alt={client?.name} />
-                    <AvatarFallback>{client?.name.charAt(0)}</AvatarFallback>
-                  </Avatar>
-                  <div className="flex flex-col items-start text-left flex-grow truncate">
+                  <div className="relative">
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={client?.avatarUrl} alt={client?.name} />
+                      <AvatarFallback>{client?.name.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                     {unreadCount > 0 && state === 'collapsed' && (
+                        <Badge className="absolute -top-1 -right-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full p-0">
+                          {unreadCount}
+                        </Badge>
+                      )}
+                  </div>
+                  <div className={cn("flex flex-col items-start text-left flex-grow truncate", state === 'collapsed' && "hidden")}>
                     <div className="flex justify-between w-full">
                       <p className="font-semibold">{client?.name}</p>
                       <span className="text-xs text-muted-foreground">
@@ -154,7 +161,7 @@ export function ConversationList({
                       {lastMessage?.content}
                     </p>
                   </div>
-                  {unreadCount > 0 && (
+                  {unreadCount > 0 && state === 'expanded' && (
                      <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
                        {unreadCount}
                      </Badge>
@@ -168,56 +175,58 @@ export function ConversationList({
       <SidebarFooter>
         <div className={cn("flex flex-col gap-2", state === 'collapsed' && "items-center")}>
             {loggedInUser.role !== 'agent' && (
-              <>
+              <div className={cn(state === 'collapsed' && "hidden")}>
                 <Link href="/templates" passHref>
                   <Button variant="outline" className="w-full justify-start gap-2">
                     <FileText className="h-4 w-4" />
                     <span className={cn(state === 'collapsed' && "hidden")}>Templates</span>
                   </Button>
                 </Link>
-                <Button variant="outline" className="w-full justify-start gap-2">
+                <Button variant="outline" className="w-full justify-start gap-2 mt-2">
                   <Users className="h-4 w-4" />
                   <span className={cn(state === 'collapsed' && "hidden")}>Equipes</span>
                 </Button>
-              </>
+              </div>
             )}
              <Separator />
-            <div className={cn("flex items-center w-full", state === 'collapsed' ? 'justify-center' : 'justify-between')}>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className={cn("flex items-center gap-3 w-full", state === 'collapsed' ? 'hidden' : 'justify-start p-2')}>
-                    <Avatar className={cn("h-8 w-8")}>
-                      <AvatarImage src={loggedInUser.avatarUrl} alt={loggedInUser.name} />
-                      <AvatarFallback>{loggedInUser.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    <div className={cn("flex flex-col items-start")}>
-                      <span className="font-semibold text-foreground text-sm">{loggedInUser.name}</span>
-                      <span className="text-xs text-muted-foreground">{loggedInUser.email}</span>
-                    </div>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-64 mb-2" align="end" sideOffset={10}>
-                   <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">{loggedInUser.company}</p>
-                      <p className="text-xs leading-none text-muted-foreground">
-                        {loggedInUser.role}
-                      </p>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                   <DropdownMenuItem>
-                    <Settings className="mr-2 h-4 w-4" />
-                    <span>Configurações</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Sair</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-                <SidebarTrigger className={cn("h-7 w-7 hidden md:flex")} />
+            <div className={cn("flex items-center w-full p-2", state === 'collapsed' ? 'justify-center' : 'justify-between')}>
+               <div className={cn(state === 'collapsed' && "hidden")}>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="flex items-center gap-3 w-full justify-start p-2 h-auto">
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage src={loggedInUser.avatarUrl} alt={loggedInUser.name} />
+                          <AvatarFallback>{loggedInUser.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                      <div className="flex flex-col items-start">
+                        <span className="font-semibold text-foreground text-sm">{loggedInUser.name}</span>
+                        <span className="text-xs text-muted-foreground">{loggedInUser.email}</span>
+                      </div>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-64 mb-2" align="end" sideOffset={10}>
+                    <DropdownMenuLabel className="font-normal">
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium leading-none">{loggedInUser.company}</p>
+                        <p className="text-xs leading-none text-muted-foreground">
+                          {loggedInUser.role}
+                        </p>
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem>
+                      <Settings className="mr-2 h-4 w-4" />
+                      <span>Configurações</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Sair</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+              <SidebarTrigger className={cn("h-7 w-7 hidden md:flex")} />
             </div>
         </div>
       </SidebarFooter>
