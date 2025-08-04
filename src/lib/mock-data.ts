@@ -1,0 +1,132 @@
+import type { User, Conversation } from './types';
+
+export const users: User[] = [
+  {
+    id: 'user-client-1',
+    name: 'Maria Silva',
+    email: 'maria.silva@email.com',
+    avatarUrl: 'https://placehold.co/100x100.png',
+    role: 'client',
+    status: 'online',
+  },
+  {
+    id: 'user-client-2',
+    name: 'João Pereira',
+    email: 'joao.pereira@email.com',
+    avatarUrl: 'https://placehold.co/100x100.png',
+    role: 'client',
+    status: 'offline',
+  },
+  {
+    id: 'user-client-3',
+    name: 'Ana Costa',
+    email: 'ana.costa@email.com',
+    avatarUrl: 'https://placehold.co/100x100.png',
+    role: 'client',
+    status: 'online',
+  },
+  {
+    id: 'user-agent-1',
+    name: 'Carlos Oliveira',
+    email: 'agent1@example.com',
+    avatarUrl: 'https://placehold.co/100x100.png',
+    role: 'agent',
+    status: 'online',
+  },
+  {
+    id: 'user-agent-2',
+    name: 'Sofia Rodrigues',
+    email: 'agent2@example.com',
+    avatarUrl: 'https://placehold.co/100x100.png',
+    role: 'agent',
+    status: 'offline',
+  },
+  {
+    id: 'user-admin-1',
+    name: 'Lucas Martins',
+    email: 'admin@example.com',
+    avatarUrl: 'https://placehold.co/100x100.png',
+    role: 'admin',
+    status: 'online',
+  },
+];
+
+export const conversations: Conversation[] = [
+  {
+    id: 'conv-1',
+    clientId: 'user-client-1',
+    agentId: 'user-agent-1',
+    status: 'open',
+    createdAt: new Date(Date.now() - 1000 * 60 * 5),
+    updatedAt: new Date(Date.now() - 1000 * 60 * 2),
+    messages: [
+      {
+        id: 'msg-1-1',
+        conversationId: 'conv-1',
+        senderId: 'user-client-1',
+        content: 'Olá! Gostaria de saber mais sobre o plano Pro.',
+        timestamp: new Date(Date.now() - 1000 * 60 * 5),
+        status: 'read',
+      },
+      {
+        id: 'msg-1-2',
+        conversationId: 'conv-1',
+        senderId: 'user-agent-1',
+        content: 'Olá, Maria! Claro. O plano Pro oferece recursos avançados de automação e relatórios detalhados. Você tem alguma dúvida específica?',
+        timestamp: new Date(Date.now() - 1000 * 60 * 3),
+        status: 'read',
+      },
+      {
+        id: 'msg-1-3',
+        conversationId: 'conv-1',
+        senderId: 'user-client-1',
+        content: 'Sim, como funciona a integração com outras ferramentas?',
+        timestamp: new Date(Date.now() - 1000 * 60 * 2),
+        status: 'delivered',
+      },
+    ],
+  },
+  {
+    id: 'conv-2',
+    clientId: 'user-client-2',
+    agentId: 'user-agent-1',
+    status: 'open',
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2),
+    updatedAt: new Date(Date.now() - 1000 * 60 * 30),
+    messages: [
+      {
+        id: 'msg-2-1',
+        conversationId: 'conv-2',
+        senderId: 'user-client-2',
+        content: 'Estou com um problema para gerar um relatório de vendas.',
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2),
+        status: 'read',
+      },
+      {
+        id: 'msg-2-2',
+        conversationId: 'conv-2',
+        senderId: 'user-agent-1',
+        content: 'Olá, João. Sinto muito por isso. Pode me dar mais detalhes do erro que está aparecendo?',
+        timestamp: new Date(Date.now() - 1000 * 60 * 30),
+        status: 'sent',
+      },
+    ],
+  },
+  {
+    id: 'conv-3',
+    clientId: 'user-client-3',
+    status: 'pending',
+    createdAt: new Date(Date.now() - 1000 * 60 * 15),
+    updatedAt: new Date(Date.now() - 1000 * 60 * 15),
+    messages: [
+      {
+        id: 'msg-3-1',
+        conversationId: 'conv-3',
+        senderId: 'user-client-3',
+        content: 'Preciso de ajuda para configurar minha conta.',
+        timestamp: new Date(Date.now() - 1000 * 60 * 15),
+        status: 'sent',
+      },
+    ],
+  },
+];

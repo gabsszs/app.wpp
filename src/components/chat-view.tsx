@@ -1,0 +1,156 @@
+'use client';
+
+import React, { useState, useRef, useEffect } from 'react';
+import { Send, Sparkles, Phone, Video, Info } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Card, CardContent } from '@/components/ui/card';
+import { MessageBubble } from './message-bubble';
+import type { Conversation, User } from '@/lib/types';
+import { users } from '@/lib/mock-data';
+import { getSuggestedResponse } from '@/ai/flows/suggested-response';
+import { useToast } from '@/hooks/use-toast';
+
+interface ChatViewProps {
+  conversation: Conversation | null;
+  loggedInUser: User;
+  onSendMessage: (conversationId: string, messageContent: string) => void;
+}
+
+export function ChatView({ conversation, loggedInUser, onSendMessage }: ChatViewProps) {
+  const [message, setMessage] = useState('');
+  const [isSuggesting, setIsSuggesting] = useState(false);
+  const { toast } = useToast();
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+
+  const client = conversation ? users.find((u) => u.id === conversation.clientId) : null;
+
+  useEffect(() => {
+    if (scrollAreaRef.current) {
+      scrollAreaRef.current.scrollTo({
+        top: scrollAreaRef.current.scrollHeight,
+        behavior: 'smooth',
+      });
+    }
+  }, [conversation?.messages]);
+  
+  const handleSend = () => {
+    if (message.trim() && conversation) {
+      onSendMessage(conversation.id, message);
+      setMessage('');
+    }
+  };
+
+  const handleSuggestion = async () => {
+    if (!conversation || conversation.messages.length === 0) return;
+    const lastCustomerMessage = [...conversation.messages].reverse().find(m => m.senderId !== loggedInUser.id);
+    if (!lastCustomerMessage) {
+       toast({
+        title: "Nenhuma mensagem do cliente",
+        description: "Não há mensagem do cliente para gerar uma sugestão.",
+        variant: 'destructive',
+      });
+      return;
+    };
+
+    setIsSuggesting(true);
+    try {
+      const result = await getSuggestedResponse({ customerMessage: lastCustomerMessage.content });
+      setMessage(result.suggestedResponse);
+    } catch (error) {
+      console.error('Error getting suggestion:', error);
+      toast({
+        title: "Erro na Sugestão",
+        description: "Não foi possível gerar uma sugestão de resposta.",
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSuggesting(false);
+    }
+  };
+
+  if (!conversation || !client) {
+    return (
+      <div className="flex h-full items-center justify-center bg-muted/30">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold tracking-tight">Bem-vindo ao ConectaZap</h2>
+          <p className="text-muted-foreground">Selecione uma conversa para começar a conversar.</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex h-screen flex-col bg-muted/30">
+      <header className="flex items-center justify-between border-b bg-background p-4 shadow-sm">
+        <div className="flex items-center gap-3">
+          <Avatar>
+            <AvatarImage src={client.avatarUrl} alt={client.name} />
+            <AvatarFallback>{client.name.charAt(0)}</AvatarFallback>
+          </Avatar>
+          <div>
+            <p className="font-semibold">{client.name}</p>
+            <p className="text-sm text-muted-foreground">{client.status}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon">
+            <Phone className="h-5 w-5" />
+          </Button>
+          <Button variant="ghost" size="icon">
+            <Video className="h-5 w-5" />
+          </Button>
+          <Button variant="ghost" size="icon">
+            <Info className="h-5 w-5" />
+          </Button>
+        </div>
+      </header>
+
+      <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
+        <div className="space-y-4">
+          {conversation.messages.map((msg) => (
+            <MessageBubble key={msg.id} message={msg} loggedInUserId={loggedInUser.id} />
+          ))}
+        </div>
+      </ScrollArea>
+
+      <footer className="border-t bg-background p-4">
+        <Card>
+          <CardContent className="p-2">
+            <div className="grid gap-2">
+              <Textarea
+                placeholder="Digite sua mensagem..."
+                className="resize-none border-0 shadow-none focus-visible:ring-0"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSend();
+                  }
+                }}
+              />
+              <div className="flex items-center justify-between">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={handleSuggestion}
+                  disabled={isSuggesting}
+                  className="gap-2 text-accent-foreground hover:text-accent-foreground"
+                >
+                  <Sparkles className="h-4 w-4 text-accent" />
+                  {isSuggesting ? 'Gerando...' : 'Sugerir Resposta com IA'}
+                </Button>
+                <Button onClick={handleSend} size="icon" disabled={!message.trim()}>
+                  <Send className="h-5 w-5" />
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </footer>
+    </div>
+  );
+}
