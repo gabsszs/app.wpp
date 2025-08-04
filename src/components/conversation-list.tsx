@@ -40,15 +40,22 @@ export function ConversationList({
   return (
     <>
       <SidebarHeader>
-        <div className="flex items-center gap-3">
-          <Avatar>
-            <AvatarImage src={loggedInUser.avatarUrl} alt={loggedInUser.name} />
-            <AvatarFallback>{loggedInUser.name.charAt(0)}</AvatarFallback>
-          </Avatar>
-          <div className="flex flex-col">
-            <span className="font-semibold text-foreground">{loggedInUser.name}</span>
-            <span className="text-sm text-muted-foreground">{loggedInUser.email}</span>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Avatar>
+              <AvatarImage src={loggedInUser.avatarUrl} alt={loggedInUser.name} />
+              <AvatarFallback>{loggedInUser.name.charAt(0)}</AvatarFallback>
+            </Avatar>
+            <div className="flex flex-col">
+              <span className="font-semibold text-foreground">{loggedInUser.name}</span>
+              <span className="text-sm text-muted-foreground">{loggedInUser.email}</span>
+            </div>
           </div>
+          <Link href="/contacts" passHref>
+             <Button variant="ghost" size="icon">
+                <User className="h-5 w-5" />
+             </Button>
+          </Link>
         </div>
         <div className="relative">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -93,12 +100,6 @@ export function ConversationList({
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter>
-        <Link href="/contacts" passHref>
-          <Button variant="outline" className="w-full justify-start gap-2">
-            <User className="h-4 w-4" />
-            <span>Contatos</span>
-          </Button>
-        </Link>
         {loggedInUser.role !== 'agent' && (
           <>
             <Link href="/templates" passHref>
