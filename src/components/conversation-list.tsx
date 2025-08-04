@@ -1,8 +1,9 @@
+
 'use client';
 
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Search, User, Users, Settings } from 'lucide-react';
+import { Search, User, Users, Settings, FileText } from 'lucide-react';
 import {
   SidebarHeader,
   SidebarContent,
@@ -96,6 +97,12 @@ export function ConversationList({
           <Button variant="outline" className="w-full justify-start gap-2">
             <User className="h-4 w-4" />
             <span>Contatos</span>
+          </Button>
+        </Link>
+        <Link href="/templates" passHref>
+          <Button variant="outline" className="w-full justify-start gap-2">
+            <FileText className="h-4 w-4" />
+            <span>Templates</span>
           </Button>
         </Link>
         <Button variant="outline" className="w-full justify-start gap-2">
