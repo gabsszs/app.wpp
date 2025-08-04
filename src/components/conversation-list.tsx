@@ -42,6 +42,7 @@ import type { Conversation, User as TUser, Message } from '@/lib/types';
 import { users } from '@/lib/mock-data';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 
 interface ConversationListProps {
@@ -77,49 +78,65 @@ export function ConversationList({
   return (
     <>
       <SidebarHeader>
-        <div className={cn("flex items-center justify-between w-full", state === 'collapsed' && 'hidden')}>
-            <div className="flex items-center">
-              <Dialog open={openNewChatDialog} onOpenChange={setOpenNewChatDialog}>
-                <DialogTrigger asChild>
-                   <Button variant="ghost" size="icon">
-                      <PlusCircle className="h-5 w-5" />
-                   </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
-                  <DialogHeader>
-                    <DialogTitle>Iniciar Nova Conversa</DialogTitle>
-                    <DialogDescription>
-                      Digite o número de telefone para iniciar uma conversa.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <form onSubmit={handleCreateNewChat}>
-                    <div className="grid gap-4 py-4">
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="phone" className="text-right">
-                          Telefone
-                        </Label>
-                        <Input id="phone" placeholder="Número com código do país" className="col-span-3" required />
-                      </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="name" className="text-right">
-                          Nome
-                        </Label>
-                        <Input id="name" placeholder="Nome do contato (Opcional)" className="col-span-3" />
-                      </div>
+        <div className={cn("flex items-center gap-2", state === 'expanded' ? 'justify-between' : 'justify-center')}>
+          <div className="flex items-center gap-1">
+             <Dialog open={openNewChatDialog} onOpenChange={setOpenNewChatDialog}>
+              <Tooltip>
+                  <TooltipTrigger asChild>
+                    <DialogTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                          <PlusCircle className="h-5 w-5" />
+                      </Button>
+                    </DialogTrigger>
+                  </TooltipTrigger>
+                  <TooltipContent side="right" className={cn(state === 'expanded' && 'hidden')}>
+                    <p>Nova Conversa</p>
+                  </TooltipContent>
+              </Tooltip>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Iniciar Nova Conversa</DialogTitle>
+                  <DialogDescription>
+                    Digite o número de telefone para iniciar uma conversa.
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleCreateNewChat}>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="phone" className="text-right">
+                        Telefone
+                      </Label>
+                      <Input id="phone" placeholder="Número com código do país" className="col-span-3" required />
                     </div>
-                    <DialogFooter>
-                      <Button type="submit">Iniciar Conversa</Button>
-                    </DialogFooter>
-                  </form>
-                </DialogContent>
-              </Dialog>
-              <Link href="/contacts" passHref>
-                 <Button variant="ghost" size="icon">
-                    <User className="h-5 w-5" />
-                 </Button>
-              </Link>
-            </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="name" className="text-right">
+                        Nome
+                      </Label>
+                      <Input id="name" placeholder="Nome do contato (Opcional)" className="col-span-3" />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button type="submit">Iniciar Conversa</Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link href="/contacts" passHref>
+                    <Button variant="ghost" size="icon">
+                      <User className="h-5 w-5" />
+                    </Button>
+                </Link>
+              </TooltipTrigger>
+               <TooltipContent side="right" className={cn(state === 'expanded' && 'hidden')}>
+                  <p>Contatos</p>
+                </TooltipContent>
+            </Tooltip>
+          </div>
         </div>
+        
         <div className={cn("flex items-center gap-2", state === 'collapsed' && "hidden")}>
             <div className="relative flex-grow">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -165,7 +182,7 @@ export function ConversationList({
                       <AvatarFallback>{client?.name.charAt(0)}</AvatarFallback>
                     </Avatar>
                      {unreadCount > 0 && state === 'collapsed' && (
-                        <span className="absolute top-0 right-0 block h-2.5 w-2.5 rounded-full bg-primary ring-2 ring-background" />
+                        <span className="absolute -top-1 -right-1 block h-3 w-3 rounded-full bg-primary ring-2 ring-background" />
                       )}
                   </div>
                   <div className={cn("flex flex-col items-start text-left flex-grow truncate", state === 'collapsed' && "hidden")}>
@@ -253,3 +270,5 @@ export function ConversationList({
     </>
   );
 }
+
+    
