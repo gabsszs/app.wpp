@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Search, User, Users, Settings, FileText, LogOut, PlusCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, User, Users, Settings, FileText, LogOut, PlusCircle, ChevronLeft, ChevronRight, Building } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -77,8 +77,16 @@ export function ConversationList({
   return (
     <>
       <SidebarHeader>
-        <div className="flex items-center justify-between">
-            <h2 className={cn("text-xl font-bold", state === 'collapsed' && "hidden")}>Conversas</h2>
+        <div className={cn("flex items-center gap-4", state === 'collapsed' ? 'justify-center' : 'justify-between')}>
+          <div className={cn("flex items-center gap-2", state === 'collapsed' && 'hidden')}>
+            <Avatar className="h-10 w-10 bg-primary/10 text-primary flex items-center justify-center">
+              <Building className="h-6 w-6" />
+            </Avatar>
+            <div className='flex flex-col'>
+               <h2 className="text-lg font-bold">ConectaZap</h2>
+               <p className='text-xs text-muted-foreground'>{loggedInUser.company}</p>
+            </div>
+          </div>
           <div className="flex items-center">
             <Dialog open={openNewChatDialog} onOpenChange={setOpenNewChatDialog}>
               <DialogTrigger asChild>
@@ -176,9 +184,9 @@ export function ConversationList({
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter>
-        <div className={cn("flex flex-col gap-2", state === 'collapsed' && "items-center")}>
+        <div className={cn("flex flex-col gap-2 w-full")}>
             {loggedInUser.role !== 'agent' && (
-              <div className={cn(state === 'collapsed' && "hidden")}>
+              <div className={cn(state === 'collapsed' && "hidden", "px-2")}>
                 <Link href="/templates" passHref>
                   <Button variant="outline" className="w-full justify-start gap-2">
                     <FileText className="h-4 w-4" />
@@ -192,47 +200,47 @@ export function ConversationList({
               </div>
             )}
              <Separator />
-             <div className={cn("flex items-center w-full p-2", state === 'collapsed' ? 'justify-center' : 'justify-between')}>
-              <div className={cn(state === 'collapsed' && "hidden")}>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="flex items-center gap-3 w-full justify-start p-2 h-auto">
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage src={loggedInUser.avatarUrl} alt={loggedInUser.name} />
-                          <AvatarFallback>{loggedInUser.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                      <div className="flex flex-col items-start">
-                        <span className="font-semibold text-foreground text-sm">{loggedInUser.name}</span>
-                        <span className="text-xs text-muted-foreground">{loggedInUser.email}</span>
-                      </div>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-64 mb-2" align="end" sideOffset={10}>
-                    <DropdownMenuLabel className="font-normal">
-                      <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">{loggedInUser.company}</p>
-                        <p className="text-xs leading-none text-muted-foreground">
-                          {loggedInUser.role}
-                        </p>
-                      </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem>
-                      <Settings className="mr-2 h-4 w-4" />
-                      <span>Configurações</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem>
-                      <LogOut className="mr-2 h-4 w-4" />
-                      <span>Sair</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+              <div className={cn("flex items-center w-full p-2", state === 'collapsed' ? 'justify-center' : 'justify-between')}>
+                <div className={cn("flex-grow", state === 'collapsed' && "hidden")}>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="flex items-center gap-3 w-full justify-start p-2 h-auto">
+                          <Avatar className="h-8 w-8">
+                            <AvatarImage src={loggedInUser.avatarUrl} alt={loggedInUser.name} />
+                            <AvatarFallback>{loggedInUser.name.charAt(0)}</AvatarFallback>
+                          </Avatar>
+                        <div className="flex flex-col items-start flex-grow truncate">
+                          <span className="font-semibold text-foreground text-sm truncate">{loggedInUser.name}</span>
+                          <span className="text-xs text-muted-foreground truncate">{loggedInUser.email}</span>
+                        </div>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-64 mb-2" align="end" sideOffset={10}>
+                      <DropdownMenuLabel className="font-normal">
+                        <div className="flex flex-col space-y-1">
+                          <p className="text-sm font-medium leading-none">{loggedInUser.company}</p>
+                          <p className="text-xs leading-none text-muted-foreground">
+                            {loggedInUser.role}
+                          </p>
+                        </div>
+                      </DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem>
+                        <Settings className="mr-2 h-4 w-4" />
+                        <span>Configurações</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem>
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>Sair</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+                <SidebarTrigger className={cn("h-7 w-7 hidden md:flex shrink-0")} >
+                   <TriggerIcon />
+                </SidebarTrigger>
               </div>
-              <SidebarTrigger className={cn("h-7 w-7 hidden md:flex")} >
-                 <TriggerIcon />
-              </SidebarTrigger>
-            </div>
         </div>
       </SidebarFooter>
     </>
