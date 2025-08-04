@@ -123,7 +123,7 @@ export function ConversationList({
                 <Separator />
               </>
             )}
-            <div className="flex items-center justify-between w-full">
+            <div className={cn("flex items-center w-full", state === 'collapsed' ? 'justify-center' : 'justify-between')}>
               <div className="flex items-center gap-3">
                 <Avatar>
                   <AvatarImage src={loggedInUser.avatarUrl} alt={loggedInUser.name} />
