@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Sparkles, Phone, Video, Info, Paperclip } from 'lucide-react';
+import { Send, Sparkles, Phone, Video, Info, Paperclip, Image, FileText, MapPin } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -12,6 +12,12 @@ import type { Conversation, User } from '@/lib/types';
 import { users } from '@/lib/mock-data';
 import { getSuggestedResponse } from '@/ai/flows/suggested-response';
 import { useToast } from '@/hooks/use-toast';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface ChatViewProps {
   conversation: Conversation | null;
@@ -144,9 +150,27 @@ export function ChatView({ conversation, loggedInUser, onSendMessage }: ChatView
                   {isSuggesting ? 'Gerando...' : 'Sugerir Resposta com IA'}
                 </Button>
                 <div className="ml-auto flex items-center gap-2">
-                  <Button variant="ghost" size="icon">
-                    <Paperclip className="h-5 w-5" />
-                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <Paperclip className="h-5 w-5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem>
+                        <Image className="mr-2 h-4 w-4" />
+                        <span>Fotos e Vídeos</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <FileText className="mr-2 h-4 w-4" />
+                        <span>Documento</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <MapPin className="mr-2 h-4 w-4" />
+                        <span>Localização</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                   <Button onClick={handleSend} size="icon" disabled={!message.trim()}>
                     <Send className="h-5 w-5" />
                   </Button>
