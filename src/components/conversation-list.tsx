@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Search, User, Users, Settings, FileText, LogOut, PlusCircle, ChevronLeft, ChevronRight, Building } from 'lucide-react';
+import { Search, User, Users, Settings, FileText, LogOut, PlusCircle, ChevronLeft, ChevronRight, Filter } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -77,8 +77,8 @@ export function ConversationList({
   return (
     <>
       <SidebarHeader>
-        <div className={cn("flex items-center", state === 'collapsed' ? 'justify-center' : 'justify-end')}>
-          <div className="flex items-center">
+        <div className={cn("flex items-center w-full", state === 'collapsed' ? 'justify-center' : 'justify-between')}>
+          <div className={cn("flex items-center", state === 'collapsed' && 'hidden')}>
             <Dialog open={openNewChatDialog} onOpenChange={setOpenNewChatDialog}>
               <DialogTrigger asChild>
                  <Button variant="ghost" size="icon">
@@ -120,9 +120,25 @@ export function ConversationList({
             </Link>
           </div>
         </div>
-        <div className={cn("relative", state === 'collapsed' && "hidden")}>
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Buscar conversas..." className="pl-8" />
+        <div className={cn("flex items-center gap-2", state === 'collapsed' && "hidden")}>
+            <div className="relative flex-grow">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input placeholder="Buscar conversas..." className="pl-8" />
+            </div>
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="shrink-0">
+                        <Filter className="h-4 w-4" />
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Filtrar por</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem>Data</DropdownMenuItem>
+                    <DropdownMenuItem>Não respondida</DropdownMenuItem>
+                    <DropdownMenuItem>Grupo</DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
         </div>
       </SidebarHeader>
       <Separator />
@@ -191,7 +207,7 @@ export function ConversationList({
               </div>
             )}
              <Separator />
-              <div className={cn("flex items-center w-full p-2", state === 'collapsed' ? 'justify-center' : 'justify-between')}>
+              <div className={cn("flex items-center p-2", state === 'collapsed' ? 'justify-center' : 'justify-between w-full')}>
                 <div className={cn("flex-grow", state === 'collapsed' && "hidden")}>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -228,7 +244,7 @@ export function ConversationList({
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
-                <SidebarTrigger className={cn("h-7 w-7 hidden md:flex shrink-0")} >
+                <SidebarTrigger className={cn("h-7 w-7 shrink-0", state === 'expanded' && 'hidden md:flex')} >
                    <TriggerIcon />
                 </SidebarTrigger>
               </div>
