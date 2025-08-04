@@ -196,7 +196,7 @@ export function ConversationList({
                     </div>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-64 mb-2" align="end" forceMount>
+                <DropdownMenuContent className="w-64 mb-2" align="end" forceMount sideOffset={10}>
                    <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
                       <p className="text-sm font-medium leading-none">{loggedInUser.company}</p>
