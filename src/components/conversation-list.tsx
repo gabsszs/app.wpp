@@ -150,7 +150,7 @@ export function ConversationList({
                       <AvatarFallback>{client?.name.charAt(0)}</AvatarFallback>
                     </Avatar>
                      {unreadCount > 0 && state === 'collapsed' && (
-                        <span className="absolute top-0 right-0 block h-2.5 w-2.5 rounded-full bg-destructive ring-2 ring-background" />
+                        <span className="absolute top-0 right-0 block h-2.5 w-2.5 rounded-full bg-primary ring-2 ring-background" />
                       )}
                   </div>
                   <div className={cn("flex flex-col items-start text-left flex-grow truncate", state === 'collapsed' && "hidden")}>
@@ -192,8 +192,8 @@ export function ConversationList({
               </div>
             )}
              <Separator />
-            <div className={cn("flex items-center w-full p-2", state === 'collapsed' ? 'justify-center' : 'justify-between')}>
-               <div className={cn(state === 'collapsed' && "hidden")}>
+             <div className={cn("flex items-center w-full p-2", state === 'collapsed' ? 'justify-center' : 'justify-between')}>
+              <div className={cn(state === 'collapsed' && "hidden")}>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="flex items-center gap-3 w-full justify-start p-2 h-auto">
