@@ -20,6 +20,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu"
 import {
   SidebarHeader,
@@ -195,7 +196,16 @@ export function ConversationList({
                     </div>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56 mb-2" align="end" forceMount>
+                <DropdownMenuContent className="w-64 mb-2" align="end" forceMount>
+                   <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">{loggedInUser.company}</p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {loggedInUser.role}
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
                    <DropdownMenuItem>
                     <Settings className="mr-2 h-4 w-4" />
                     <span>Configurações</span>

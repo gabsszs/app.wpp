@@ -8,6 +8,7 @@ export const users: User[] = [
     avatarUrl: 'https://placehold.co/100x100.png',
     role: 'client',
     status: 'online',
+    company: 'Cliente VIP',
   },
   {
     id: 'user-client-2',
@@ -16,6 +17,7 @@ export const users: User[] = [
     avatarUrl: 'https://placehold.co/100x100.png',
     role: 'client',
     status: 'offline',
+    company: 'Cliente Padrão',
   },
   {
     id: 'user-client-3',
@@ -24,6 +26,7 @@ export const users: User[] = [
     avatarUrl: 'https://placehold.co/100x100.png',
     role: 'client',
     status: 'online',
+    company: 'Cliente Padrão',
   },
   {
     id: 'user-agent-1',
@@ -32,6 +35,7 @@ export const users: User[] = [
     avatarUrl: 'https://placehold.co/100x100.png',
     role: 'agent',
     status: 'online',
+    company: 'ConectaZap',
   },
   {
     id: 'user-agent-2',
@@ -40,6 +44,7 @@ export const users: User[] = [
     avatarUrl: 'https://placehold.co/100x100.png',
     role: 'agent',
     status: 'offline',
+    company: 'ConectaZap',
   },
   {
     id: 'user-admin-1',
@@ -48,6 +53,7 @@ export const users: User[] = [
     avatarUrl: 'https://placehold.co/100x100.png',
     role: 'admin',
     status: 'online',
+    company: 'ConectaZap',
   },
 ];
 

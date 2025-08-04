@@ -7,6 +7,7 @@ export interface User {
   avatarUrl: string;
   role: Role;
   status: 'online' | 'offline';
+  company: string;
 }
 
 export type MessageStatus = 'sent' | 'delivered' | 'read';
