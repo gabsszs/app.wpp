@@ -80,22 +80,22 @@ export function ConversationList({
                 <DialogHeader>
                   <DialogTitle>Iniciar Nova Conversa</DialogTitle>
                   <DialogDescription>
-                    Adicione um novo contato para começar a conversar.
+                    Digite o número de telefone para iniciar uma conversa.
                   </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleCreateNewChat}>
                   <div className="grid gap-4 py-4">
                     <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="name" className="text-right">
-                        Nome
-                      </Label>
-                      <Input id="name" placeholder="Nome do contato" className="col-span-3" />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
                       <Label htmlFor="phone" className="text-right">
                         Telefone
                       </Label>
-                      <Input id="phone" placeholder="(99) 99999-9999" className="col-span-3" />
+                      <Input id="phone" placeholder="Número com código do país" className="col-span-3" required />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="name" className="text-right">
+                        Nome (Opcional)
+                      </Label>
+                      <Input id="name" placeholder="Nome do contato" className="col-span-3" />
                     </div>
                   </div>
                   <DialogFooter>
