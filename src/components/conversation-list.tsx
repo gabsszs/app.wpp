@@ -185,17 +185,14 @@ export function ConversationList({
             <div className={cn("flex items-center w-full", state === 'collapsed' ? 'justify-center' : 'justify-between')}>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className={cn("flex items-center gap-3 w-full", state === 'collapsed' ? 'justify-center p-2' : 'justify-start p-2')}>
-                    <Avatar className={cn("h-8 w-8", state === 'collapsed' && "hidden")}>
+                  <Button variant="ghost" className={cn("flex items-center gap-3 w-full", state === 'collapsed' ? 'hidden' : 'justify-start p-2')}>
+                    <Avatar className={cn("h-8 w-8")}>
                       <AvatarImage src={loggedInUser.avatarUrl} alt={loggedInUser.name} />
                       <AvatarFallback>{loggedInUser.name.charAt(0)}</AvatarFallback>
                     </Avatar>
-                    <div className={cn("flex flex-col items-start", state === 'collapsed' && "hidden")}>
+                    <div className={cn("flex flex-col items-start")}>
                       <span className="font-semibold text-foreground text-sm">{loggedInUser.name}</span>
                       <span className="text-xs text-muted-foreground">{loggedInUser.email}</span>
-                    </div>
-                     <div className={cn(state !== 'collapsed' && "hidden")}>
-                      <Settings className="h-5 w-5" />
                     </div>
                   </Button>
                 </DropdownMenuTrigger>
@@ -220,7 +217,7 @@ export function ConversationList({
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-                <SidebarTrigger className={cn("hidden md:flex", state === 'collapsed' && "hidden")} />
+                <SidebarTrigger className={cn("h-7 w-7 hidden md:flex")} />
             </div>
         </div>
       </SidebarFooter>
