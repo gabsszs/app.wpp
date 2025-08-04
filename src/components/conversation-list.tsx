@@ -77,16 +77,7 @@ export function ConversationList({
   return (
     <>
       <SidebarHeader>
-        <div className={cn("flex items-center gap-4", state === 'collapsed' ? 'justify-center' : 'justify-between')}>
-          <div className={cn("flex items-center gap-2", state === 'collapsed' && 'hidden')}>
-            <Avatar className="h-10 w-10 bg-primary/10 text-primary flex items-center justify-center">
-              <Building className="h-6 w-6" />
-            </Avatar>
-            <div className='flex flex-col'>
-               <h2 className="text-lg font-bold">ConectaZap</h2>
-               <p className='text-xs text-muted-foreground'>{loggedInUser.company}</p>
-            </div>
-          </div>
+        <div className={cn("flex items-center", state === 'collapsed' ? 'justify-center' : 'justify-end')}>
           <div className="flex items-center">
             <Dialog open={openNewChatDialog} onOpenChange={setOpenNewChatDialog}>
               <DialogTrigger asChild>
