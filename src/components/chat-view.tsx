@@ -1,12 +1,15 @@
+
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Sparkles, Phone, Video, Info, Paperclip, Image, FileText, MapPin, ChevronLeft } from 'lucide-react';
+import { Send, Sparkles, Phone, Video, Info, Paperclip, Image, FileText, MapPin, ChevronLeft, Calendar as CalendarIcon, Clock } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent } from '@/components/ui/card';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { MessageBubble } from './message-bubble';
 import type { Conversation, User } from '@/lib/types';
 import { users } from '@/lib/mock-data';
@@ -19,6 +22,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SidebarTrigger } from '@/components/ui/sidebar';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 interface ChatViewProps {
   conversation: Conversation | null;
@@ -29,10 +34,12 @@ interface ChatViewProps {
 export function ChatView({ conversation, loggedInUser, onSendMessage }: ChatViewProps) {
   const [message, setMessage] = useState('');
   const [isSuggesting, setIsSuggesting] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const { toast } = useToast();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   const client = conversation ? users.find((u) => u.id === conversation.clientId) : null;
+  const getSender = (senderId: string) => users.find(u => u.id === senderId);
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -89,6 +96,11 @@ export function ChatView({ conversation, loggedInUser, onSendMessage }: ChatView
     );
   }
 
+  const filteredMessages = conversation.messages.filter(msg => 
+    selectedDate ? format(new Date(msg.timestamp), 'yyyy-MM-dd') === format(selectedDate, 'yyyy-MM-dd') : true
+  );
+
+
   return (
     <div className="flex h-screen flex-col">
       <header className="flex items-center justify-between border-b bg-background p-4">
@@ -105,6 +117,26 @@ export function ChatView({ conversation, loggedInUser, onSendMessage }: ChatView
             <p className="text-sm text-muted-foreground">{client.status}</p>
           </div>
         </div>
+         <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant={"outline"}
+              className="w-[200px] justify-center text-left font-normal"
+            >
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {selectedDate ? format(selectedDate, "PPP", { locale: ptBR }) : <span>Escolha uma data</span>}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="center">
+            <Calendar
+              mode="single"
+              selected={selectedDate}
+              onSelect={setSelectedDate}
+              initialFocus
+              locale={ptBR}
+            />
+          </PopoverContent>
+        </Popover>
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon">
             <Phone className="h-5 w-5" />
@@ -120,9 +152,12 @@ export function ChatView({ conversation, loggedInUser, onSendMessage }: ChatView
 
       <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
         <div className="space-y-4">
-          {conversation.messages.map((msg) => (
-            <MessageBubble key={msg.id} message={msg} loggedInUserId={loggedInUser.id} />
-          ))}
+          {filteredMessages.map((msg) => {
+            const sender = getSender(msg.senderId);
+            return (
+              <MessageBubble key={msg.id} message={msg} sender={sender} loggedInUserId={loggedInUser.id} />
+            )
+          })}
         </div>
       </ScrollArea>
 

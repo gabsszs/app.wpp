@@ -1,3 +1,4 @@
+
 export type Role = 'super-admin' | 'admin' | 'agent' | 'client';
 
 export interface User {
@@ -10,7 +11,7 @@ export interface User {
   company: string;
 }
 
-export type MessageStatus = 'sent' | 'delivered' | 'read';
+export type MessageStatus = 'sending' | 'sent' | 'delivered' | 'read';
 
 export interface Message {
   id: string;

@@ -1,16 +1,21 @@
+
 'use client';
 
-import { Check, CheckCheck } from 'lucide-react';
+import { Check, CheckCheck, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import type { Message, MessageStatus } from '@/lib/types';
+import type { Message, MessageStatus, User } from '@/lib/types';
 
 interface MessageBubbleProps {
   message: Message;
+  sender?: User;
   loggedInUserId: string;
 }
 
 const MessageStatusIndicator = ({ status }: { status: MessageStatus }) => {
+  if (status === 'sending') {
+    return <Clock className="h-4 w-4 text-muted-foreground" />;
+  }
   if (status === 'read') {
     return <CheckCheck className="h-4 w-4 text-primary" />;
   }
@@ -20,28 +25,40 @@ const MessageStatusIndicator = ({ status }: { status: MessageStatus }) => {
   return <Check className="h-4 w-4 text-muted-foreground" />;
 };
 
-export function MessageBubble({ message, loggedInUserId }: MessageBubbleProps) {
+export function MessageBubble({ message, sender, loggedInUserId }: MessageBubbleProps) {
   const isMyMessage = message.senderId === loggedInUserId;
 
   return (
     <div
-      className={cn('flex items-end gap-2', {
-        'justify-end': isMyMessage,
-        'justify-start': !isMyMessage,
+      className={cn('flex flex-col', {
+        'items-end': isMyMessage,
+        'items-start': !isMyMessage,
       })}
     >
+      {sender && (
+         <p className={cn("text-xs text-muted-foreground mb-1", isMyMessage ? "mr-2" : "ml-2")}>
+            {sender.name}
+         </p>
+      )}
       <div
-        className={cn('max-w-md rounded-2xl px-4 py-3', {
-          'bg-primary text-primary-foreground': isMyMessage,
-          'bg-card shadow-sm border': !isMyMessage,
+        className={cn('flex items-end gap-2', {
+          'justify-end': isMyMessage,
+          'justify-start': !isMyMessage,
         })}
       >
-        <p className="whitespace-pre-wrap">{message.content}</p>
-        <div className="mt-1 flex items-center justify-end gap-2">
-          <span className="text-xs opacity-70">
-            {format(new Date(message.timestamp), 'HH:mm')}
-          </span>
-          {isMyMessage && <MessageStatusIndicator status={message.status} />}
+        <div
+          className={cn('max-w-md rounded-2xl px-4 py-3', {
+            'bg-primary text-primary-foreground': isMyMessage,
+            'bg-card shadow-sm border': !isMyMessage,
+          })}
+        >
+          <p className="whitespace-pre-wrap">{message.content}</p>
+          <div className="mt-1 flex items-center justify-end gap-2">
+            <span className="text-xs opacity-70">
+              {format(new Date(message.timestamp), 'HH:mm')}
+            </span>
+            {isMyMessage && <MessageStatusIndicator status={message.status} />}
+          </div>
         </div>
       </div>
     </div>
