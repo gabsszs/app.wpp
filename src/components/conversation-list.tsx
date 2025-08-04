@@ -77,48 +77,48 @@ export function ConversationList({
   return (
     <>
       <SidebarHeader>
-        <div className={cn("flex items-center w-full", state === 'collapsed' ? 'justify-center' : 'justify-between')}>
-          <div className={cn("flex items-center", state === 'collapsed' && 'hidden')}>
-            <Dialog open={openNewChatDialog} onOpenChange={setOpenNewChatDialog}>
-              <DialogTrigger asChild>
+        <div className={cn("flex items-center justify-between w-full", state === 'collapsed' && 'hidden')}>
+            <div className="flex items-center">
+              <Dialog open={openNewChatDialog} onOpenChange={setOpenNewChatDialog}>
+                <DialogTrigger asChild>
+                   <Button variant="ghost" size="icon">
+                      <PlusCircle className="h-5 w-5" />
+                   </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle>Iniciar Nova Conversa</DialogTitle>
+                    <DialogDescription>
+                      Digite o número de telefone para iniciar uma conversa.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <form onSubmit={handleCreateNewChat}>
+                    <div className="grid gap-4 py-4">
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="phone" className="text-right">
+                          Telefone
+                        </Label>
+                        <Input id="phone" placeholder="Número com código do país" className="col-span-3" required />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="name" className="text-right">
+                          Nome
+                        </Label>
+                        <Input id="name" placeholder="Nome do contato (Opcional)" className="col-span-3" />
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button type="submit">Iniciar Conversa</Button>
+                    </DialogFooter>
+                  </form>
+                </DialogContent>
+              </Dialog>
+              <Link href="/contacts" passHref>
                  <Button variant="ghost" size="icon">
-                    <PlusCircle className="h-5 w-5" />
+                    <User className="h-5 w-5" />
                  </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>Iniciar Nova Conversa</DialogTitle>
-                  <DialogDescription>
-                    Digite o número de telefone para iniciar uma conversa.
-                  </DialogDescription>
-                </DialogHeader>
-                <form onSubmit={handleCreateNewChat}>
-                  <div className="grid gap-4 py-4">
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="phone" className="text-right">
-                        Telefone
-                      </Label>
-                      <Input id="phone" placeholder="Número com código do país" className="col-span-3" required />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="name" className="text-right">
-                        Nome
-                      </Label>
-                      <Input id="name" placeholder="Nome do contato (Opcional)" className="col-span-3" />
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <Button type="submit">Iniciar Conversa</Button>
-                  </DialogFooter>
-                </form>
-              </DialogContent>
-            </Dialog>
-            <Link href="/contacts" passHref>
-               <Button variant="ghost" size="icon">
-                  <User className="h-5 w-5" />
-               </Button>
-            </Link>
-          </div>
+              </Link>
+            </div>
         </div>
         <div className={cn("flex items-center gap-2", state === 'collapsed' && "hidden")}>
             <div className="relative flex-grow">
