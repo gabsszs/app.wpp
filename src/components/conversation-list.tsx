@@ -78,7 +78,7 @@ export function ConversationList({
   return (
     <>
       <SidebarHeader>
-        <div className={cn("flex items-center gap-2", state === 'expanded' ? 'justify-between' : 'justify-center')}>
+        <div className={cn("flex flex-col gap-2", state === 'collapsed' && "items-center")}>
           <div className="flex items-center gap-1">
              <Dialog open={openNewChatDialog} onOpenChange={setOpenNewChatDialog}>
               <Tooltip>
@@ -135,27 +135,27 @@ export function ConversationList({
                 </TooltipContent>
             </Tooltip>
           </div>
-        </div>
         
-        <div className={cn("flex items-center gap-2", state === 'collapsed' && "hidden")}>
-            <div className="relative flex-grow">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Buscar conversas..." className="pl-8" />
-            </div>
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="shrink-0">
-                        <Filter className="h-4 w-4" />
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>Filtrar por</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem>Data</DropdownMenuItem>
-                    <DropdownMenuItem>Não respondida</DropdownMenuItem>
-                    <DropdownMenuItem>Grupo</DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
+          <div className={cn("flex items-center gap-2", state === 'collapsed' && "hidden")}>
+              <div className="relative flex-grow">
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input placeholder="Buscar conversas..." className="pl-8" />
+              </div>
+              <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="shrink-0">
+                          <Filter className="h-4 w-4" />
+                      </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                      <DropdownMenuLabel>Filtrar por</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem>Data</DropdownMenuItem>
+                      <DropdownMenuItem>Não respondida</DropdownMenuItem>
+                      <DropdownMenuItem>Grupo</DropdownMenuItem>
+                  </DropdownMenuContent>
+              </DropdownMenu>
+          </div>
         </div>
       </SidebarHeader>
       <Separator />
@@ -270,5 +270,7 @@ export function ConversationList({
     </>
   );
 }
+
+    
 
     
