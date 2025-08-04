@@ -99,20 +99,24 @@ export function ConversationList({
             <span>Contatos</span>
           </Button>
         </Link>
-        <Link href="/templates" passHref>
-          <Button variant="outline" className="w-full justify-start gap-2">
-            <FileText className="h-4 w-4" />
-            <span>Templates</span>
-          </Button>
-        </Link>
-        <Button variant="outline" className="w-full justify-start gap-2">
-          <Users className="h-4 w-4" />
-          <span>Equipes</span>
-        </Button>
-         <Button variant="outline" className="w-full justify-start gap-2">
-          <Settings className="h-4 w-4" />
-          <span>Configurações</span>
-        </Button>
+        {loggedInUser.role !== 'agent' && (
+          <>
+            <Link href="/templates" passHref>
+              <Button variant="outline" className="w-full justify-start gap-2">
+                <FileText className="h-4 w-4" />
+                <span>Templates</span>
+              </Button>
+            </Link>
+            <Button variant="outline" className="w-full justify-start gap-2">
+              <Users className="h-4 w-4" />
+              <span>Equipes</span>
+            </Button>
+            <Button variant="outline" className="w-full justify-start gap-2">
+              <Settings className="h-4 w-4" />
+              <span>Configurações</span>
+            </Button>
+          </>
+        )}
       </SidebarFooter>
     </>
   );
