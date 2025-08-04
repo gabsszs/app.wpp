@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Sparkles, Phone, Video, Info } from 'lucide-react';
+import { Send, Sparkles, Phone, Video, Info, Paperclip } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -132,10 +132,10 @@ export function ChatView({ conversation, loggedInUser, onSendMessage }: ChatView
                   }
                 }}
               />
-              <div className="flex items-center justify-between">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
+              <div className="flex items-center">
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={handleSuggestion}
                   disabled={isSuggesting}
                   className="gap-2 text-accent-foreground hover:text-accent-foreground"
@@ -143,9 +143,14 @@ export function ChatView({ conversation, loggedInUser, onSendMessage }: ChatView
                   <Sparkles className="h-4 w-4 text-accent" />
                   {isSuggesting ? 'Gerando...' : 'Sugerir Resposta com IA'}
                 </Button>
-                <Button onClick={handleSend} size="icon" disabled={!message.trim()}>
-                  <Send className="h-5 w-5" />
-                </Button>
+                <div className="ml-auto flex items-center gap-2">
+                  <Button variant="ghost" size="icon">
+                    <Paperclip className="h-5 w-5" />
+                  </Button>
+                  <Button onClick={handleSend} size="icon" disabled={!message.trim()}>
+                    <Send className="h-5 w-5" />
+                  </Button>
+                </div>
               </div>
             </div>
           </CardContent>
