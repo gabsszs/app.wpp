@@ -168,7 +168,7 @@ export function ChatView({
                 <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
                     <MessageSquarePlus className="h-8 w-8 text-primary" />
                 </div>
-                <h2 className="text-2xl font-bold tracking-tight">Nenhum chat por aqui ainda</h2>
+                <h2 className="text-xl font-bold tracking-tight">Nenhum chat por aqui ainda</h2>
                 <p className="mt-2 text-muted-foreground">
                     Inicie uma nova conversa com um de seus contatos ou adicione um novo número de telefone.
                 </p>
@@ -188,7 +188,7 @@ export function ChatView({
     return (
       <div className="flex h-full items-center justify-center bg-muted/30">
         <div className="text-center">
-          <h2 className="text-2xl font-bold tracking-tight">Bem-vindo ao ConectaZap</h2>
+          <h2 className="text-xl font-bold tracking-tight">Bem-vindo ao ConectaZap</h2>
           <p className="text-muted-foreground">Selecione uma conversa para começar a conversar.</p>
         </div>
       </div>
@@ -222,15 +222,7 @@ export function ChatView({
             </SheetTrigger>
             
             <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon">
-                <Phone className="h-5 w-5" />
-            </Button>
-            <Button variant="ghost" size="icon">
-                <Video className="h-5 w-5" />
-            </Button>
-            <Button variant="ghost" size="icon">
-                <Info className="h-5 w-5" />
-            </Button>
+            {/* Call buttons removed as per user request */}
             </div>
         </header>
 
