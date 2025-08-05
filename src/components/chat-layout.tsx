@@ -50,6 +50,8 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
   const { toast } = useToast();
 
   const [isProfileSheetOpen, setIsProfileSheetOpen] = useState(false);
+  const previousConversationId =_usePrevious(selectedConversation?.id);
+
 
   // State for the new chat form
   const [phoneDDI, setPhoneDDI] = useState('+55');
@@ -164,10 +166,18 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
   };
 
   useEffect(() => {
-    if (selectedConversation) {
+    if (selectedConversation?.id !== previousConversationId) {
         setIsProfileSheetOpen(false);
     }
-  }, [selectedConversation])
+  }, [selectedConversation, previousConversationId]);
+
+  function _usePrevious(value: any) {
+    const ref = React.useRef();
+    React.useEffect(() => {
+      ref.current = value;
+    });
+    return ref.current;
+  }
   
   const enrichedSelectedConversation = selectedConversation ? {
       ...selectedConversation,
@@ -288,20 +298,18 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
           />
         </Sidebar>
         <SidebarInset className="flex-1 flex overflow-hidden">
-            <div className='flex-1 flex flex-col'>
-                <ChatView
-                    conversation={enrichedSelectedConversation}
-                    conversations={conversations}
-                    loggedInUser={loggedInUser}
-                    onSendMessage={handleSendMessage}
-                    isLoadingMessages={loadingMessages}
-                    onOpenContacts={() => setIsContactsDialogOpen(true)}
-                    onOpenNewChat={() => setIsNewChatDialogOpen(true)}
-                    draft={selectedConversation ? drafts[selectedConversation.id] : undefined}
-                    onDraftChange={handleDraftChange}
-                    onToggleProfileSheet={() => setIsProfileSheetOpen(!isProfileSheetOpen)}
-                />
-            </div>
+            <ChatView
+                conversation={enrichedSelectedConversation}
+                conversations={conversations}
+                loggedInUser={loggedInUser}
+                onSendMessage={handleSendMessage}
+                isLoadingMessages={loadingMessages}
+                onOpenContacts={() => setIsContactsDialogOpen(true)}
+                onOpenNewChat={() => setIsNewChatDialogOpen(true)}
+                draft={selectedConversation ? drafts[selectedConversation.id] : undefined}
+                onDraftChange={handleDraftChange}
+                onToggleProfileSheet={() => setIsProfileSheetOpen(!isProfileSheetOpen)}
+            />
             {isProfileSheetOpen && selectedConversation && (
                 <ClientProfileSheet 
                     conversation={enrichedSelectedConversation} 
