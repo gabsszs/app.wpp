@@ -33,9 +33,11 @@ interface ChatViewProps {
   loggedInUser: User;
   onSendMessage: (conversationId: string, messageContent: string) => void;
   isLoadingMessages: boolean;
+  onOpenContacts: () => void;
+  onOpenNewChat: () => void;
 }
 
-export function ChatView({ conversation, conversations, loggedInUser, onSendMessage, isLoadingMessages }: ChatViewProps) {
+export function ChatView({ conversation, conversations, loggedInUser, onSendMessage, isLoadingMessages, onOpenContacts, onOpenNewChat }: ChatViewProps) {
   const [message, setMessage] = useState('');
   const [isSuggesting, setIsSuggesting] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
@@ -107,18 +109,6 @@ export function ChatView({ conversation, conversations, loggedInUser, onSendMess
     return format(date, "PPP", { locale: ptBR });
   };
 
-  // State for the empty chat screen.
-  // We get the dialog triggers from the ConversationList component context,
-  // this is a bit of a hack but avoids prop drilling or context hell.
-  const getDialogTrigger = (dialogId: string) => {
-    if (typeof window === 'undefined') return null;
-    return document.getElementById(dialogId) as HTMLButtonElement | null;
-  }
-  
-  const openContactsDialog = () => getDialogTrigger('contacts-dialog-trigger')?.click();
-  const openNewChatDialog = () => getDialogTrigger('new-chat-dialog-trigger')?.click();
-
-
   if (!conversation) {
      if (conversations.length === 0) {
       return (
@@ -132,11 +122,11 @@ export function ChatView({ conversation, conversations, loggedInUser, onSendMess
                     Inicie uma nova conversa com um de seus contatos ou adicione um novo número de telefone.
                 </p>
                 <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
-                    <Button onClick={openContactsDialog}>
+                    <Button onClick={onOpenContacts}>
                         <Users className="mr-2 h-4 w-4" />
                         Ver Contatos
                     </Button>
-                     <Button variant="outline" onClick={openNewChatDialog}>
+                     <Button variant="outline" onClick={onOpenNewChat}>
                         Iniciar Nova Conversa
                     </Button>
                 </div>

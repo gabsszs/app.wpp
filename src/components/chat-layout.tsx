@@ -11,6 +11,20 @@ import { useCollectionData } from 'react-firebase-hooks/firestore';
 import { collection, query, where, orderBy, doc, collectionGroup } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Skeleton } from './ui/skeleton';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog"
+import { ContactsView } from './contacts-view';
+import { Button } from './ui/button';
+import { PlusCircle } from 'lucide-react';
+import { Label } from './ui/label';
+import { Input } from './ui/input';
 
 interface ChatLayoutProps {
   loggedInUser: User;
@@ -18,6 +32,8 @@ interface ChatLayoutProps {
 
 export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
+  const [isContactsDialogOpen, setIsContactsDialogOpen] = useState(false);
+  const [isNewChatDialogOpen, setIsNewChatDialogOpen] = useState(false);
 
   // Real-time conversations
   const conversationsQuery = query(
@@ -67,6 +83,13 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
         console.error("Error marking messages as read:", error);
     }
   }, [loggedInUser.id]);
+
+  const handleCreateNewChat = (event: React.FormEvent) => {
+    event.preventDefault();
+    // Logic to create new chat here
+    console.log("Novo chat criado!");
+    setIsNewChatDialogOpen(false);
+  }
   
   const enrichedSelectedConversation = selectedConversation ? {
       ...selectedConversation,
@@ -95,6 +118,63 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
 
   return (
     <SidebarProvider defaultOpen>
+        {/* Contacts Dialog */}
+        <Dialog open={isContactsDialogOpen} onOpenChange={setIsContactsDialogOpen}>
+            <DialogContent className="max-w-4xl h-[90vh] flex flex-col p-0 overflow-hidden">
+                <div className="p-6 pb-0">
+                    <DialogHeader>
+                    <div className="flex items-center justify-between">
+                        <div className='space-y-1'>
+                            <DialogTitle className="text-2xl">Contatos</DialogTitle>
+                            <DialogDescription>
+                                Gerencie seus clientes e inicie novas conversas.
+                            </DialogDescription>
+                        </div>
+                        <Button>
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Adicionar Contato
+                        </Button>
+                    </div>
+                    </DialogHeader>
+                </div>
+                <div className="flex-1 flex flex-col min-h-0">
+                    <ContactsView />
+                </div>
+            </DialogContent>
+        </Dialog>
+
+        {/* New Chat Dialog */}
+        <Dialog open={isNewChatDialogOpen} onOpenChange={setIsNewChatDialogOpen}>
+            <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                    <DialogTitle>Iniciar Nova Conversa</DialogTitle>
+                    <DialogDescription>
+                    Digite o número de telefone para iniciar uma conversa.
+                    </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleCreateNewChat}>
+                    <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="phone" className="text-right">
+                        Telefone
+                        </Label>
+                        <Input id="phone" placeholder="Número com código do país" className="col-span-3" required />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="name" className="text-right">
+                        Nome
+                        </Label>
+                        <Input id="name" placeholder="Nome do contato (Opcional)" className="col-span-3" />
+                    </div>
+                    </div>
+                    <DialogFooter>
+                    <Button type="submit">Iniciar Conversa</Button>
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
+
+
       <div className="flex h-screen w-full">
         <Sidebar className="h-full" collapsible="icon">
           <ConversationList
@@ -102,6 +182,8 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
             selectedConversation={selectedConversation}
             onSelectConversation={handleSelectConversation}
             loggedInUser={loggedInUser}
+            onOpenContacts={() => setIsContactsDialogOpen(true)}
+            onOpenNewChat={() => setIsNewChatDialogOpen(true)}
           />
         </Sidebar>
         <SidebarInset className="flex-1 relative">
@@ -111,6 +193,8 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
             loggedInUser={loggedInUser}
             onSendMessage={handleSendMessage}
             isLoadingMessages={loadingMessages}
+            onOpenContacts={() => setIsContactsDialogOpen(true)}
+            onOpenNewChat={() => setIsNewChatDialogOpen(true)}
           />
         </SidebarInset>
       </div>

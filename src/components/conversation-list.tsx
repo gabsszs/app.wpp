@@ -54,6 +54,8 @@ interface ConversationListProps {
   selectedConversation: Conversation | null;
   onSelectConversation: (conversation: Conversation) => void;
   loggedInUser: TUser;
+  onOpenContacts: () => void;
+  onOpenNewChat: () => void;
 }
 
 export function ConversationList({
@@ -61,9 +63,10 @@ export function ConversationList({
   selectedConversation,
   onSelectConversation,
   loggedInUser,
+  onOpenContacts,
+  onOpenNewChat,
 }: ConversationListProps) {
   const { state } = useSidebar();
-  const [openNewChatDialog, setOpenNewChatDialog] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
 
@@ -82,13 +85,6 @@ export function ConversationList({
   const getUnreadCount = (messages: Message[]) => {
     // This logic is flawed without real-time message fetching per conversation
     return 0;
-  }
-
-  const handleCreateNewChat = (event: React.FormEvent) => {
-    event.preventDefault();
-    // Logic to create new chat here
-    console.log("Novo chat criado!");
-    setOpenNewChatDialog(false);
   }
 
   const formatTimestamp = (timestamp: any): Date => {
@@ -112,82 +108,26 @@ export function ConversationList({
                   <h2 className="text-lg font-semibold tracking-tight">Conversas</h2>
                 </div>
                 <div className="flex items-center gap-1">
-                  <Dialog>
-                      <Tooltip>
-                          <TooltipTrigger asChild>
-                              <DialogTrigger asChild>
-                                  <Button id="contacts-dialog-trigger" variant="ghost" size="icon" className="shrink-0">
-                                      <Users className="h-4 w-4" />
-                                  </Button>
-                              </DialogTrigger>
-                          </TooltipTrigger>
-                          <TooltipContent side="bottom">
-                            <p>Contatos</p>
-                          </TooltipContent>
-                      </Tooltip>
-                      <DialogContent className="max-w-4xl h-[90vh] flex flex-col p-0 overflow-hidden">
-                        <div className="p-6 pb-0">
-                          <DialogHeader>
-                            <div className="flex items-center justify-between">
-                              <div className='space-y-1'>
-                                  <DialogTitle className="text-2xl">Contatos</DialogTitle>
-                                  <DialogDescription>
-                                      Gerencie seus clientes e inicie novas conversas.
-                                  </DialogDescription>
-                              </div>
-                              <Button>
-                                <PlusCircle className="mr-2 h-4 w-4" />
-                                Adicionar Contato
-                              </Button>
-                            </div>
-                          </DialogHeader>
-                        </div>
-                        <div className="flex-1 flex flex-col min-h-0">
-                          <ContactsView />
-                        </div>
-                      </DialogContent>
-                  </Dialog>
-                  <Dialog open={openNewChatDialog} onOpenChange={setOpenNewChatDialog}>
-                      <Tooltip>
-                          <TooltipTrigger asChild>
-                          <DialogTrigger asChild>
-                              <Button id="new-chat-dialog-trigger" variant="ghost" size="icon" className="shrink-0">
-                                  <PlusCircle className="h-4 w-4" />
-                              </Button>
-                          </DialogTrigger>
-                          </TooltipTrigger>
-                          <TooltipContent side="bottom">
-                          <p>Nova Conversa</p>
-                          </TooltipContent>
-                      </Tooltip>
-                      <DialogContent className="sm:max-w-[425px]">
-                      <DialogHeader>
-                          <DialogTitle>Iniciar Nova Conversa</DialogTitle>
-                          <DialogDescription>
-                          Digite o número de telefone para iniciar uma conversa.
-                          </DialogDescription>
-                      </DialogHeader>
-                      <form onSubmit={handleCreateNewChat}>
-                          <div className="grid gap-4 py-4">
-                          <div className="grid grid-cols-4 items-center gap-4">
-                              <Label htmlFor="phone" className="text-right">
-                              Telefone
-                              </Label>
-                              <Input id="phone" placeholder="Número com código do país" className="col-span-3" required />
-                          </div>
-                          <div className="grid grid-cols-4 items-center gap-4">
-                              <Label htmlFor="name" className="text-right">
-                              Nome
-                              </Label>
-                              <Input id="name" placeholder="Nome do contato (Opcional)" className="col-span-3" />
-                          </div>
-                          </div>
-                          <DialogFooter>
-                          <Button type="submit">Iniciar Conversa</Button>
-                          </DialogFooter>
-                      </form>
-                      </DialogContent>
-                  </Dialog>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button onClick={onOpenContacts} variant="ghost" size="icon" className="shrink-0">
+                                <Users className="h-4 w-4" />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom">
+                        <p>Contatos</p>
+                        </TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button onClick={onOpenNewChat} variant="ghost" size="icon" className="shrink-0">
+                                <PlusCircle className="h-4 w-4" />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom">
+                        <p>Nova Conversa</p>
+                        </TooltipContent>
+                    </Tooltip>
                 </div>
               </div>
             
