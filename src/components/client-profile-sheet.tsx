@@ -44,7 +44,7 @@ export function ClientProfileSheet({ conversation, agent, onClose }: ClientProfi
 
     return (
         <aside className="w-96 bg-background border-l flex flex-col h-full">
-            <header className="p-4 border-b flex items-center justify-between">
+            <header className="p-4 border-b flex items-center justify-between h-16">
                 <h3 className="font-semibold text-lg">Ficha do Cliente</h3>
                 <Button variant="ghost" size="icon" onClick={onClose}>
                     <X className="w-4 h-4" />

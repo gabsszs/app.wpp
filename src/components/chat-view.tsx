@@ -202,7 +202,7 @@ export function ChatView({
 
   return (
     <div className="relative flex h-screen flex-col flex-1">
-        <header className="flex items-center justify-between border-b bg-background p-4">
+        <header className="flex h-16 items-center justify-between border-b bg-background p-4">
         <div onClick={onToggleProfileSheet} className="flex items-center gap-3 cursor-pointer">
             <SidebarTrigger className="md:hidden">
                 <ChevronLeft />
