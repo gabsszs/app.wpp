@@ -15,6 +15,7 @@ import {
 } from 'firebase/firestore';
 import { db } from './firebase';
 import type { Message, Conversation, User } from './types';
+import { toDate } from 'date-fns';
 
 // NOTE: In a real-world scenario, you would have more robust user fetching.
 // This is a simplified version to work without a full user management system for clients.
@@ -52,8 +53,8 @@ export async function getConversationsForAgent(agentId: string): Promise<Convers
       status: data.status,
       createdAt: data.createdAt.toDate(),
       updatedAt: data.updatedAt.toDate(),
-      clientName: clientData.name || 'Unknown Client',
-      clientAvatarUrl: clientData.avatarUrl || 'https://placehold.co/100x100.png',
+      clientName: data.clientName || clientData.name || 'Unknown Client',
+      clientAvatarUrl: data.clientAvatarUrl || clientData.avatarUrl || 'https://placehold.co/100x100.png',
       lastMessage: lastMessage ? {
           content: lastMessage.content,
           timestamp: lastMessage.timestamp.toDate(),
@@ -114,7 +115,7 @@ export async function createOrGetConversationByPhone(
   agentId: string,
   clientPhone: string,
   clientName?: string
-): Promise<string> {
+): Promise<{ id: string; isNew: boolean }> {
   const conversationsRef = collection(db, 'conversations');
 
   // Use the phone number as a unique ID for the client in this context.
@@ -128,7 +129,7 @@ export async function createOrGetConversationByPhone(
 
   if (!existingConvsSnapshot.empty) {
     // If conversation already exists, return its ID
-    return existingConvsSnapshot.docs[0].id;
+    return { id: existingConvsSnapshot.docs[0].id, isNew: false };
   }
 
   // If it doesn't exist, create a new one
@@ -145,5 +146,5 @@ export async function createOrGetConversationByPhone(
   };
 
   const newConversationDocRef = await addDoc(conversationsRef, newConversationData);
-  return newConversationDocRef.id;
+  return { id: newConversationDocRef.id, isNew: true };
 }

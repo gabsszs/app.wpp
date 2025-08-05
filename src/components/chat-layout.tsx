@@ -6,7 +6,7 @@ import type { Conversation, User } from '@/lib/types';
 import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar';
 import { ConversationList } from './conversation-list';
 import { ChatView } from './chat-view';
-import { sendMessage, markMessagesAsRead, createOrGetConversationByPhone } from '@/lib/firestore';
+import { sendMessage, markMessagesAsRead, createOrGetConversationByPhone, getConversationsForAgent } from '@/lib/firestore';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
 import { collection, query, where, orderBy, doc, collectionGroup } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -43,6 +43,9 @@ interface ChatLayoutProps {
 
 export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [loadingConversations, setLoadingConversations] = useState(true);
+
   const [isContactsDialogOpen, setIsContactsDialogOpen] = useState(false);
   const [isNewChatDialogOpen, setIsNewChatDialogOpen] = useState(false);
   const { toast } = useToast();
@@ -53,15 +56,6 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
   const [contactName, setContactName] = useState('');
   const [isCreatingChat, setIsCreatingChat] = useState(false);
 
-
-  // Real-time conversations
-  const conversationsQuery = query(
-      collection(db, 'conversations'), 
-      where('agentId', '==', loggedInUser.id), 
-      orderBy('updatedAt', 'desc')
-  );
-  const [conversations, loadingConversations, errorConversations] = useCollectionData(conversationsQuery, { idField: 'id' });
-  
   // Real-time messages for the selected conversation
    const messagesQuery = selectedConversation ? query(
       collection(db, 'conversations', selectedConversation.id, 'messages'),
@@ -69,33 +63,26 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
     ) : null;
   const [messages, loadingMessages, errorMessages] = useCollectionData(messagesQuery, { idField: 'id' });
 
-
+  // Fetch initial conversations
   useEffect(() => {
-    // Automatically select the first conversation on initial load
-    if (conversations && conversations.length > 0 && !selectedConversation) {
-      setSelectedConversation(conversations[0] as Conversation);
-    }
-     // If the selected conversation is deleted, or the list becomes empty, reset selection.
-    if (conversations && selectedConversation && !conversations.find(c => c.id === selectedConversation.id)) {
-        setSelectedConversation(conversations.length > 0 ? (conversations[0] as Conversation) : null);
-    }
-    if (conversations && conversations.length === 0) {
-        setSelectedConversation(null);
-    }
-  }, [conversations, selectedConversation]);
-  
-  // Effect to select a conversation when its ID is available in sessionStorage
-  useEffect(() => {
-    if (typeof window === 'undefined' || !conversations) return;
-    const newConvId = sessionStorage.getItem('select-conv-id');
-    if (newConvId && conversations) {
-      const convToSelect = conversations.find(c => c.id === newConvId);
-      if (convToSelect) {
-        setSelectedConversation(convToSelect as Conversation);
-        sessionStorage.removeItem('select-conv-id');
+    const fetchConversations = async () => {
+      setLoadingConversations(true);
+      try {
+        const convs = await getConversationsForAgent(loggedInUser.id);
+        setConversations(convs);
+        if (convs.length > 0 && !selectedConversation) {
+          setSelectedConversation(convs[0]);
+        }
+      } catch (error) {
+        console.error("Error fetching conversations:", error);
+        toast({ title: "Erro ao carregar conversas", variant: "destructive" });
+      } finally {
+        setLoadingConversations(false);
       }
-    }
-  }, [conversations]);
+    };
+
+    fetchConversations();
+  }, [loggedInUser.id]);
 
 
   const handleSendMessage = async (conversationId: string, messageContent: string) => {
@@ -111,7 +98,9 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
   const handleSelectConversation = useCallback(async (conversation: Conversation) => {
     setSelectedConversation(conversation);
     try {
-        await markMessagesAsRead(conversation.id, loggedInUser.id);
+        if (conversation) {
+            await markMessagesAsRead(conversation.id, loggedInUser.id);
+        }
     } catch(error) {
         console.error("Error marking messages as read:", error);
     }
@@ -124,12 +113,32 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
 
     try {
       const fullPhoneNumber = `${phoneDDI}${phoneNumber}`;
-      const newConversationId = await createOrGetConversationByPhone(loggedInUser.id, fullPhoneNumber, contactName);
+      
+      const {id: newConversationId, isNew} = await createOrGetConversationByPhone(loggedInUser.id, fullPhoneNumber, contactName);
+      
+      let convToSelect = conversations.find(c => c.id === newConversationId);
 
-      // We use sessionStorage because the conversations list is updated via a real-time listener.
-      // We can't immediately select the conversation as it might not be in the local state yet.
-      // So we store the ID and an effect will pick it up and select it once it appears.
-      sessionStorage.setItem('select-conv-id', newConversationId);
+      if (isNew || !convToSelect) {
+        // If it's a new conversation, create a local representation to add to the state
+        const now = new Date();
+        const newConvData: Conversation = {
+            id: newConversationId,
+            clientId: fullPhoneNumber,
+            clientName: contactName || fullPhoneNumber,
+            clientAvatarUrl: `https://placehold.co/100x100.png`,
+            agentId: loggedInUser.id,
+            status: 'open',
+            createdAt: now,
+            updatedAt: now,
+            lastMessage: null,
+            messages: [],
+        };
+        const updatedConversations = [newConvData, ...conversations];
+        setConversations(updatedConversations);
+        convToSelect = newConvData;
+      }
+      
+      setSelectedConversation(convToSelect);
       
       // Reset form and close dialog
       setPhoneNumber('');
@@ -170,8 +179,6 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
        </div>
      );
    }
-
-  const allConversations = (conversations as Conversation[]) || [];
 
   return (
     <SidebarProvider defaultOpen>
@@ -262,7 +269,7 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
       <div className="flex h-screen w-full">
         <Sidebar className="h-full" collapsible="icon">
           <ConversationList
-            conversations={allConversations}
+            conversations={conversations}
             selectedConversation={selectedConversation}
             onSelectConversation={handleSelectConversation}
             loggedInUser={loggedInUser}
@@ -273,7 +280,7 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
         <SidebarInset className="flex-1 relative">
           <ChatView
             conversation={enrichedSelectedConversation}
-            conversations={allConversations}
+            conversations={conversations}
             loggedInUser={loggedInUser}
             onSendMessage={handleSendMessage}
             isLoadingMessages={loadingMessages}
