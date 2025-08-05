@@ -8,7 +8,7 @@ import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar'
 import { ConversationList } from './conversation-list';
 import { ChatView } from './chat-view';
 import { sendMessage, markMessagesAsRead, createOrGetConversationByPhone, getConversationsForAgent } from '@/lib/firestore';
-import { collection, query, orderBy, doc } from 'firebase/firestore';
+import { collection, query, orderBy, doc, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Skeleton } from './ui/skeleton';
 import {
@@ -77,25 +77,22 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
     ) : null;
   
   // Custom hook to fetch messages - to be implemented if needed for real-time
-  const useMessages = (query: any) => {
+  const useMessages = (q: any) => {
     const [messages, setMessages] = useState<Message[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<any>(null);
 
     useEffect(() => {
-        if (!query) {
+        if (!q) {
             setMessages([]);
             setLoading(false);
             return;
         }
         setLoading(true);
-        const unsubscribe = collection(db, 'conversations', selectedConversation!.id, 'messages');
-        const q = orderBy('timestamp', 'asc');
-        const finalQuery = query(unsubscribe, q);
 
         const getMessages = async () => {
             try {
-                const snapshot = await getDocs(finalQuery);
+                const snapshot = await getDocs(q);
                 setMessages(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Message)));
             } catch (err) {
                 setError(err);
@@ -108,7 +105,7 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
 
         // This would be where you set up the listener if you were using onSnapshot
         // For now, we fetch once.
-    }, [query, selectedConversation]);
+    }, [q]);
 
     return [messages, loading, error, setMessages] as const;
   };
@@ -137,15 +134,32 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
     try {
       await sendMessage(conversationId, loggedInUser.id, messageContent, type);
       // Optimistically update the UI
-        setMessages(prev => [...prev, {
+        const timestamp = new Date();
+        const newMessage: Message = {
             id: Date.now().toString(),
             conversationId,
             senderId: loggedInUser.id,
             content: messageContent,
-            timestamp: new Date(),
+            timestamp: timestamp,
             status: 'sending',
             type
-        }]);
+        };
+
+        setMessages(prev => [...prev, newMessage]);
+
+        // Also update the conversation's last message preview
+        setConversations(prevConvs => prevConvs.map(c => 
+            c.id === conversationId ? { 
+                ...c, 
+                updatedAt: timestamp, 
+                lastMessage: type === 'message' ? {
+                    content: messageContent,
+                    senderId: loggedInUser.id,
+                    timestamp: timestamp
+                } : c.lastMessage
+            } : c
+        ));
+
 
       // Clear the draft for this conversation after sending
       handleDraftChange(conversationId, '', 'message');
@@ -156,7 +170,11 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
   };
   
   const handleSelectConversation = useCallback(async (conversation: Conversation) => {
+    if (selectedConversation?.id !== conversation.id) {
+        setIsProfileSheetOpen(false);
+    }
     setSelectedConversation(conversation);
+
     try {
         if (conversation) {
             await markMessagesAsRead(conversation.id, loggedInUser.id);
@@ -164,7 +182,7 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
     } catch(error) {
         console.error("Error marking messages as read:", error);
     }
-  }, [loggedInUser.id]);
+  }, [loggedInUser.id, selectedConversation?.id]);
 
   const handleCreateNewChat = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -221,9 +239,9 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
       [conversationId]: { message, type }
     }));
   };
-
-  useEffect(() => {
-    if (selectedConversation?.id !== previousConversationId) {
+  
+   useEffect(() => {
+    if (selectedConversation?.id !== previousConversationId && previousConversationId !== undefined) {
         setIsProfileSheetOpen(false);
     }
   }, [selectedConversation, previousConversationId]);
@@ -371,5 +389,3 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
     </SidebarProvider>
   );
 }
-
-    
