@@ -84,8 +84,9 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
     }
   }, [conversations, selectedConversation]);
   
-  // Effect to select a conversation when its ID is available
+  // Effect to select a conversation when its ID is available in sessionStorage
   useEffect(() => {
+    if (typeof window === 'undefined' || !conversations) return;
     const newConvId = sessionStorage.getItem('select-conv-id');
     if (newConvId && conversations) {
       const convToSelect = conversations.find(c => c.id === newConvId);
