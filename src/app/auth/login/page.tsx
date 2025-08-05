@@ -14,6 +14,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { auth } from '@/lib/firebase';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -22,27 +24,40 @@ export default function LoginPage() {
   const { toast } = useToast();
   const router = useRouter();
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      if (email === 'agent1@example.com' && password === 'password') {
-        toast({
-          title: 'Login bem-sucedido!',
-          description: 'Você será redirecionado para a plataforma.',
-        });
-        router.push('/');
-      } else {
-        toast({
-          title: 'Erro de Login',
-          description: 'Credenciais inválidas. Por favor, tente novamente.',
-          variant: 'destructive',
-        });
-      }
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      toast({
+        title: 'Login bem-sucedido!',
+        description: 'Você será redirecionado para a plataforma.',
+      });
+      router.push('/chat');
+    } catch (error: any) {
+       let errorMessage = 'Ocorreu um erro desconhecido.';
+        switch (error.code) {
+          case 'auth/user-not-found':
+          case 'auth/wrong-password':
+          case 'auth/invalid-credential':
+            errorMessage = 'Credenciais inválidas. Por favor, tente novamente.';
+            break;
+          case 'auth/invalid-email':
+            errorMessage = 'O formato do e-mail é inválido.';
+            break;
+          default:
+            errorMessage = 'Ocorreu um erro ao tentar fazer login. Tente mais tarde.';
+            break;
+        }
+      toast({
+        title: 'Erro de Login',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (

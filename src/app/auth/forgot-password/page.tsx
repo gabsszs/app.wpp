@@ -14,6 +14,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { ChevronLeft } from 'lucide-react';
+import { auth } from '@/lib/firebase';
+import { sendPasswordResetEmail } from 'firebase/auth';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -21,19 +23,30 @@ export default function ForgotPasswordPage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const { toast } = useToast();
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setIsLoading(true);
 
-    // Simulate API call for password reset
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      await sendPasswordResetEmail(auth, email);
       setIsSubmitted(true);
       toast({
         title: 'Email Enviado',
         description: 'Se o email estiver cadastrado, você receberá um link para redefinir sua senha.',
       });
-    }, 1500);
+    } catch (error: any) {
+      let errorMessage = "Ocorreu um erro. Tente novamente.";
+       if (error.code === 'auth/invalid-email') {
+        errorMessage = "O e-mail fornecido é inválido.";
+      }
+      toast({
+        title: 'Erro',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

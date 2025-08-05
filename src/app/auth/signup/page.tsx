@@ -14,6 +14,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { auth } from '@/lib/firebase';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 
 export default function SignupPage() {
   const [name, setName] = useState('');
@@ -23,19 +25,44 @@ export default function SignupPage() {
   const { toast } = useToast();
   const router = useRouter();
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setIsLoading(true);
 
-    // Simulate API call for registration
-    setTimeout(() => {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      await updateProfile(userCredential.user, { displayName: name });
+      
       toast({
         title: 'Cadastro realizado com sucesso!',
         description: 'Você será redirecionado para a tela de login.',
       });
       router.push('/auth/login');
+
+    } catch (error: any) {
+      let errorMessage = 'Ocorreu um erro desconhecido.';
+      switch (error.code) {
+        case 'auth/email-already-in-use':
+          errorMessage = 'Este endereço de e-mail já está em uso.';
+          break;
+        case 'auth/invalid-email':
+          errorMessage = 'O formato do e-mail é inválido.';
+          break;
+        case 'auth/weak-password':
+          errorMessage = 'A senha é muito fraca. Use pelo menos 6 caracteres.';
+          break;
+        default:
+          errorMessage = error.message;
+          break;
+      }
+      toast({
+        title: 'Erro no Cadastro',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (
