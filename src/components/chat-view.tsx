@@ -70,7 +70,7 @@ export function ChatView({
           setInputType('message');
         }
     }
-  }, [conversation, draft]);
+  }, [conversation?.id, draft]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newMessage = e.target.value;
@@ -101,6 +101,7 @@ export function ChatView({
   const handleSend = () => {
     if (message.trim() && conversation) {
       onSendMessage(conversation.id, message, inputType);
+      // We don't clear draft here, it's done in ChatLayout after successful send.
     }
   };
 
@@ -160,38 +161,37 @@ export function ChatView({
   };
   
   if (!conversation) {
-     if (conversations.length === 0) {
-      return (
-        <div className="flex h-full flex-col items-center justify-center bg-muted/30 p-8">
-            <div className="text-center max-w-sm">
-                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-                    <MessageSquarePlus className="h-8 w-8 text-primary" />
-                </div>
-                <h2 className="text-xl font-bold tracking-tight">Nenhum chat por aqui ainda</h2>
-                <p className="mt-2 text-muted-foreground">
-                    Inicie uma nova conversa com um de seus contatos ou adicione um novo número de telefone.
-                </p>
-                <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
-                    <Button onClick={onOpenContacts}>
-                        <Users className="mr-2 h-4 w-4" />
-                        Ver Contatos
-                    </Button>
-                     <Button variant="outline" onClick={onOpenNewChat}>
-                        Iniciar Nova Conversa
-                    </Button>
-                </div>
+     const WelcomeMessage = conversations.length === 0 ? (
+        <div className="text-center max-w-sm">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+                <MessageSquarePlus className="h-8 w-8 text-primary" />
+            </div>
+            <h2 className="text-xl font-bold tracking-tight">Nenhum chat por aqui ainda</h2>
+            <p className="mt-2 text-muted-foreground">
+                Inicie uma nova conversa com um de seus contatos ou adicione um novo número de telefone.
+            </p>
+            <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
+                <Button onClick={onOpenContacts}>
+                    <Users className="mr-2 h-4 w-4" />
+                    Ver Contatos
+                </Button>
+                 <Button variant="outline" onClick={onOpenNewChat}>
+                    Iniciar Nova Conversa
+                </Button>
             </div>
         </div>
-      );
-    }
-    return (
-      <div className="flex h-full items-center justify-center bg-muted/30">
+      ) : (
         <div className="text-center">
           <h2 className="text-xl font-bold tracking-tight">Bem-vindo ao ConectaZap</h2>
           <p className="text-muted-foreground">Selecione uma conversa para começar a conversar.</p>
         </div>
-      </div>
-    );
+      );
+      
+      return (
+        <div className="flex h-full w-full flex-col items-center justify-center bg-muted/30 p-8">
+            {WelcomeMessage}
+        </div>
+      )
   }
 
   const filteredMessages = conversation.messages.filter(msg => {
