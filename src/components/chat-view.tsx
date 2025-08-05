@@ -38,21 +38,54 @@ interface ChatViewProps {
   isLoadingMessages: boolean;
   onOpenContacts: () => void;
   onOpenNewChat: () => void;
+  draft?: { message: string, type: MessageType };
+  onDraftChange: (conversationId: string, message: string, type: MessageType) => void;
 }
 
-export function ChatView({ conversation, conversations, loggedInUser, onSendMessage, isLoadingMessages, onOpenContacts, onOpenNewChat }: ChatViewProps) {
+export function ChatView({ 
+    conversation, 
+    conversations, 
+    loggedInUser, 
+    onSendMessage, 
+    isLoadingMessages, 
+    onOpenContacts, 
+    onOpenNewChat,
+    draft,
+    onDraftChange
+}: ChatViewProps) {
   const [message, setMessage] = useState('');
+  const [inputType, setInputType] = useState<MessageType>('message');
   const [isSuggesting, setIsSuggesting] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const { toast } = useToast();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const [inputType, setInputType] = useState<MessageType>('message');
-
-  // Reset message and input type when conversation changes
+  
   useEffect(() => {
-    setMessage('');
-    setInputType('message');
-  }, [conversation]);
+    if (draft) {
+      setMessage(draft.message);
+      setInputType(draft.type);
+    } else {
+      setMessage('');
+      setInputType('message');
+    }
+  }, [draft, conversation]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newMessage = e.target.value;
+    setMessage(newMessage);
+    if(conversation) {
+      onDraftChange(conversation.id, newMessage, inputType);
+    }
+  };
+
+  const handleInputTypeToggle = () => {
+    const newType = inputType === 'message' ? 'note' : 'message';
+    setInputType(newType);
+     if(conversation) {
+      onDraftChange(conversation.id, message, newType);
+    }
+  }
+
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -66,8 +99,6 @@ export function ChatView({ conversation, conversations, loggedInUser, onSendMess
   const handleSend = () => {
     if (message.trim() && conversation) {
       onSendMessage(conversation.id, message, inputType);
-      setMessage('');
-      setInputType('message'); // Reset to message type after sending
     }
   };
 
@@ -84,10 +115,14 @@ export function ChatView({ conversation, conversations, loggedInUser, onSendMess
     };
 
     setIsSuggesting(true);
-    setInputType('message'); // Ensure we are in message mode for suggestions
+    const currentInputType = 'message';
+    setInputType(currentInputType); // Ensure we are in message mode for suggestions
     try {
       const result = await getSuggestedResponse({ customerMessage: lastCustomerMessage.content });
       setMessage(result.suggestedResponse);
+      if(conversation) {
+        onDraftChange(conversation.id, result.suggestedResponse, currentInputType);
+      }
     } catch (error) {
       console.error('Error getting suggestion:', error);
       toast({
@@ -121,10 +156,6 @@ export function ChatView({ conversation, conversations, loggedInUser, onSendMess
     return format(date, "PPP", { locale: ptBR });
   };
   
-  const toggleInputType = () => {
-    setInputType(prev => prev === 'message' ? 'note' : 'message');
-  }
-
   if (!conversation) {
      if (conversations.length === 0) {
       return (
@@ -257,7 +288,7 @@ export function ChatView({ conversation, conversations, loggedInUser, onSendMess
                     placeholder={inputType === 'message' ? "Digite sua mensagem..." : "Digite uma nota interna..."}
                     className="resize-none border-0 shadow-none focus-visible:ring-0 bg-transparent"
                     value={message}
-                    onChange={(e) => setMessage(e.target.value)}
+                    onChange={handleInputChange}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();
@@ -280,7 +311,7 @@ export function ChatView({ conversation, conversations, loggedInUser, onSendMess
                         <Button
                             variant="ghost"
                             size="icon"
-                            onClick={toggleInputType}
+                            onClick={handleInputTypeToggle}
                             className={cn(inputType === 'note' && 'bg-amber-200 text-amber-900 hover:bg-amber-300 hover:text-amber-900')}
                         >
                             <StickyNote className="h-4 w-4" />

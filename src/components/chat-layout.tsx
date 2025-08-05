@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import type { Conversation, User, MessageType } from '@/lib/types';
+import type { Conversation, User, Message, MessageType } from '@/lib/types';
 import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar';
 import { ConversationList } from './conversation-list';
 import { ChatView } from './chat-view';
@@ -55,6 +55,9 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [contactName, setContactName] = useState('');
   const [isCreatingChat, setIsCreatingChat] = useState(false);
+  
+  // State for drafts
+  const [drafts, setDrafts] = useState<Record<string, { message: string, type: MessageType }>>({});
 
   // Real-time messages for the selected conversation
    const messagesQuery = selectedConversation ? query(
@@ -89,6 +92,8 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
     if (!loggedInUser) return;
     try {
       await sendMessage(conversationId, loggedInUser.id, messageContent, type);
+      // Clear the draft for this conversation after sending
+      handleDraftChange(conversationId, '', 'message');
     } catch (error) {
         console.error("Error sending message:", error);
         // Optionally show a toast to the user
@@ -157,6 +162,13 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
       setIsCreatingChat(false);
     }
   }
+
+  const handleDraftChange = (conversationId: string, message: string, type: MessageType) => {
+    setDrafts(prev => ({
+      ...prev,
+      [conversationId]: { message, type }
+    }));
+  };
   
   const enrichedSelectedConversation = selectedConversation ? {
       ...selectedConversation,
@@ -287,6 +299,8 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
             isLoadingMessages={loadingMessages}
             onOpenContacts={() => setIsContactsDialogOpen(true)}
             onOpenNewChat={() => setIsNewChatDialogOpen(true)}
+            draft={selectedConversation ? drafts[selectedConversation.id] : undefined}
+            onDraftChange={handleDraftChange}
           />
         </SidebarInset>
       </div>
