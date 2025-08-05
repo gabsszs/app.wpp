@@ -231,22 +231,22 @@ export function ConversationList({
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter>
-        <div className={cn("flex flex-col gap-2 w-full")}>
-             <Separator />
-              <div className={cn("flex items-center p-2", state === 'collapsed' ? 'justify-center' : 'justify-between w-full')}>
+        <Separator />
+        <div className={cn("flex p-2", state === 'collapsed' ? 'justify-center' : 'justify-between items-center w-full')}>
+            <div className={cn(state === 'collapsed' && "hidden")}>
                 <DropdownMenu>
-                   <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className={cn("flex-grow justify-start p-2 h-auto", state === 'collapsed' && "p-0 aspect-square h-10 w-10")}>
-                            <Avatar className={cn("h-8 w-8", state === 'collapsed' && "h-full w-full")}>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="flex-grow justify-start p-2 h-auto">
+                            <Avatar className="h-8 w-8">
                                 <AvatarImage src={loggedInUser.avatarUrl} alt={loggedInUser.name} />
                                 <AvatarFallback>{loggedInUser.name.charAt(0)}</AvatarFallback>
                             </Avatar>
-                            <div className={cn("flex flex-col items-start flex-grow truncate", state === 'collapsed' && "hidden")}>
+                            <div className="flex flex-col items-start flex-grow truncate ml-2">
                                 <span className="font-semibold text-foreground text-sm truncate">{loggedInUser.name}</span>
                                 <span className="text-xs text-muted-foreground truncate">{loggedInUser.email}</span>
                             </div>
                         </Button>
-                   </DropdownMenuTrigger>
+                    </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-56 mb-2" side="top" align="start">
                         <DropdownMenuLabel className="font-normal">
                           <div className="flex flex-col space-y-1">
@@ -270,17 +270,13 @@ export function ConversationList({
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
-                
-                <div className={cn("flex items-center", state === 'collapsed' && "hidden")}>
-                    <SidebarTrigger className={cn("h-7 w-7 shrink-0")} >
-                        <ChevronLeft />
-                    </SidebarTrigger>
-                </div>
-              </div>
+            </div>
+            
+            <SidebarTrigger className="shrink-0" >
+                {state === 'expanded' ? <ChevronLeft /> : <ChevronRight />}
+            </SidebarTrigger>
         </div>
-      </SidebarFooter>
+    </SidebarFooter>
     </>
   );
 }
-
-    

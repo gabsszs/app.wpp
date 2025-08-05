@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Building, Users, ShieldCheck, Home, LogOut, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Building, Users, ShieldCheck, LogOut, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -101,24 +101,25 @@ function SettingsSidebarContent() {
             </SidebarContent>
              <SidebarFooter>
                 <Separator />
-                 {loading ? (
-                    <div className="flex items-center gap-2 p-2">
-                        <Skeleton className="h-9 w-9 rounded-full" />
-                        <div className="flex flex-col gap-1 w-full">
-                           <Skeleton className="h-4 w-3/4" />
-                           <Skeleton className="h-3 w-full" />
+                <div className={cn("flex p-2", state === 'collapsed' ? 'justify-center' : 'justify-between items-center w-full')}>
+                    {loading ? (
+                        <div className={cn("flex items-center gap-2", state === 'collapsed' && "hidden")}>
+                            <Skeleton className="h-9 w-9 rounded-full" />
+                            <div className="flex flex-col gap-1 w-24">
+                               <Skeleton className="h-4 w-3/4" />
+                               <Skeleton className="h-3 w-full" />
+                            </div>
                         </div>
-                    </div>
-                ) : user ? (
-                    <div className={cn("flex items-center p-2", state === 'collapsed' ? 'justify-center' : 'justify-between w-full')}>
-                        <DropdownMenu>
+                    ) : user ? (
+                       <div className={cn(state === 'collapsed' && "hidden")}>
+                         <DropdownMenu>
                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className={cn("flex-grow justify-start p-2 h-auto", state === 'collapsed' && "p-0 aspect-square h-10 w-10")}>
-                                    <Avatar className={cn("h-8 w-8", state === 'collapsed' && "h-full w-full")}>
+                                <Button variant="ghost" className="flex-grow justify-start p-2 h-auto">
+                                    <Avatar className="h-8 w-8">
                                         <AvatarImage src={user.photoURL || ''} alt={user.displayName || ''} />
                                         <AvatarFallback>{user.displayName?.charAt(0)}</AvatarFallback>
                                     </Avatar>
-                                    <div className={cn("flex flex-col items-start flex-grow truncate", state === 'collapsed' && "hidden")}>
+                                    <div className="flex flex-col items-start flex-grow truncate ml-2">
                                         <span className="font-semibold text-foreground text-sm truncate">{user.displayName}</span>
                                         <span className="text-xs text-muted-foreground truncate">{user.email}</span>
                                     </div>
@@ -146,14 +147,13 @@ function SettingsSidebarContent() {
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
-                        
-                        <div className={cn("flex items-center", state === 'collapsed' && "hidden")}>
-                            <SidebarTrigger className={cn("h-7 w-7 shrink-0")} >
-                                <ChevronLeft />
-                            </SidebarTrigger>
-                        </div>
-                    </div>
-                ): null}
+                       </div>
+                    ): null}
+                    
+                    <SidebarTrigger className="shrink-0">
+                        {state === 'expanded' ? <ChevronLeft /> : <ChevronRight />}
+                    </SidebarTrigger>
+                </div>
              </SidebarFooter>
         </>
     )
