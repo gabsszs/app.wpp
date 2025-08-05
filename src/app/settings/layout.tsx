@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Building, Users, ShieldCheck, Home, LogOut } from 'lucide-react';
+import { Building, Users, ShieldCheck, Home, LogOut, ChevronLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -75,9 +75,6 @@ function SettingsSidebarContent() {
         toast({ title: 'Erro ao sair', description: 'Não foi possível fazer o logout. Tente novamente.', variant: 'destructive' });
         }
     };
-
-    const TriggerIcon = state === 'collapsed' ? Home : ChevronLeft;
-
 
     return (
         <>
