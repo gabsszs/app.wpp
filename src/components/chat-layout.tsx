@@ -1,6 +1,7 @@
 
 'use client';
 
+import * as React from 'react';
 import { useState, useEffect, useCallback } from 'react';
 import type { Conversation, User, Message, MessageType } from '@/lib/types';
 import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar';
@@ -8,7 +9,6 @@ import { ConversationList } from './conversation-list';
 import { ChatView } from './chat-view';
 import { sendMessage, markMessagesAsRead, createOrGetConversationByPhone, getConversationsForAgent } from '@/lib/firestore';
 import { collection, query, orderBy, doc } from 'firebase/firestore';
-import { useCollectionData } from 'react-firebase-hooks/firestore';
 import { db } from '@/lib/firebase';
 import { Skeleton } from './ui/skeleton';
 import {
@@ -40,6 +40,14 @@ interface ChatLayoutProps {
   loggedInUser: User;
 }
 
+function _usePrevious(value: any) {
+    const ref = React.useRef();
+    React.useEffect(() => {
+      ref.current = value;
+    });
+    return ref.current;
+}
+
 export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -50,7 +58,7 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
   const { toast } = useToast();
 
   const [isProfileSheetOpen, setIsProfileSheetOpen] = useState(false);
-  const previousConversationId =_usePrevious(selectedConversation?.id);
+  const previousConversationId = _usePrevious(selectedConversation?.id);
 
 
   // State for the new chat form
@@ -67,7 +75,45 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
       collection(db, 'conversations', selectedConversation.id, 'messages'),
       orderBy('timestamp', 'asc')
     ) : null;
-  const [messages, loadingMessages, errorMessages] = useCollectionData(messagesQuery, { idField: 'id' });
+  
+  // Custom hook to fetch messages - to be implemented if needed for real-time
+  const useMessages = (query: any) => {
+    const [messages, setMessages] = useState<Message[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<any>(null);
+
+    useEffect(() => {
+        if (!query) {
+            setMessages([]);
+            setLoading(false);
+            return;
+        }
+        setLoading(true);
+        const unsubscribe = collection(db, 'conversations', selectedConversation!.id, 'messages');
+        const q = orderBy('timestamp', 'asc');
+        const finalQuery = query(unsubscribe, q);
+
+        const getMessages = async () => {
+            try {
+                const snapshot = await getDocs(finalQuery);
+                setMessages(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Message)));
+            } catch (err) {
+                setError(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        getMessages();
+
+        // This would be where you set up the listener if you were using onSnapshot
+        // For now, we fetch once.
+    }, [query, selectedConversation]);
+
+    return [messages, loading, error, setMessages] as const;
+  };
+  
+  const [messages, loadingMessages, errorMessages, setMessages] = useMessages(messagesQuery);
 
   // Fetch initial conversations
   useEffect(() => {
@@ -90,11 +136,22 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
     if (!loggedInUser) return;
     try {
       await sendMessage(conversationId, loggedInUser.id, messageContent, type);
+      // Optimistically update the UI
+        setMessages(prev => [...prev, {
+            id: Date.now().toString(),
+            conversationId,
+            senderId: loggedInUser.id,
+            content: messageContent,
+            timestamp: new Date(),
+            status: 'sending',
+            type
+        }]);
+
       // Clear the draft for this conversation after sending
       handleDraftChange(conversationId, '', 'message');
     } catch (error) {
         console.error("Error sending message:", error);
-        // Optionally show a toast to the user
+        toast({ title: "Erro ao enviar mensagem", variant: "destructive"});
     }
   };
   
@@ -140,7 +197,7 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
         convToSelect = newConvData;
       }
       
-      setSelectedConversation(convToSelect);
+      handleSelectConversation(convToSelect);
       
       setPhoneNumber('');
       setContactName('');
@@ -171,14 +228,6 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
     }
   }, [selectedConversation, previousConversationId]);
 
-  function _usePrevious(value: any) {
-    const ref = React.useRef();
-    React.useEffect(() => {
-      ref.current = value;
-    });
-    return ref.current;
-  }
-  
   const enrichedSelectedConversation = selectedConversation ? {
       ...selectedConversation,
       messages: messages as Message[] || [],
@@ -210,7 +259,7 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
                     <DialogHeader>
                     <div className="flex items-center justify-between">
                         <div className='space-y-1'>
-                            <DialogTitle className="text-2xl">Contatos</DialogTitle>
+                            <DialogTitle className="text-xl">Contatos</DialogTitle>
                             <DialogDescription>
                                 Gerencie seus clientes e inicie novas conversas.
                             </DialogDescription>
@@ -231,7 +280,7 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
         <Dialog open={isNewChatDialogOpen} onOpenChange={setIsNewChatDialogOpen}>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>Iniciar Nova Conversa</DialogTitle>
+                    <DialogTitle className="text-xl">Iniciar Nova Conversa</DialogTitle>
                     <DialogDescription>
                     Digite o número de telefone para iniciar uma conversa.
                     </DialogDescription>
@@ -297,7 +346,7 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
             onOpenNewChat={() => setIsNewChatDialogOpen(true)}
           />
         </Sidebar>
-        <SidebarInset className="flex-1 flex overflow-hidden">
+        <div className="flex-1 flex overflow-hidden">
             <ChatView
                 conversation={enrichedSelectedConversation}
                 conversations={conversations}
@@ -317,8 +366,10 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
                     onClose={() => setIsProfileSheetOpen(false)}
                 />
             )}
-        </SidebarInset>
+        </div>
       </div>
     </SidebarProvider>
   );
 }
+
+    
