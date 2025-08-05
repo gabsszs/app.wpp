@@ -56,7 +56,7 @@ export async function getConversationsForAgent(agentId: string): Promise<Convers
       clientName: data.clientName || clientData.name || 'Unknown Client',
       clientAvatarUrl: data.clientAvatarUrl || clientData.avatarUrl || 'https://placehold.co/100x100.png',
       tags: data.tags || [],
-      lastMessage: lastMessage ? {
+      lastMessage: lastMessage && lastMessage.timestamp ? {
           content: lastMessage.content,
           timestamp: lastMessage.timestamp.toDate(),
           senderId: lastMessage.senderId,
@@ -85,17 +85,20 @@ export async function sendMessage(conversationId: string, senderId: string, cont
         type: type
     });
     
+    const conversationUpdate: {updatedAt: any, lastMessage?: any} = {
+        updatedAt: timestamp
+    };
+    
     // Only update conversation's lastMessage if it's a regular message
     if (type === 'message') {
-      batch.update(conversationRef, {
-          updatedAt: timestamp,
-          lastMessage: {
-              content,
-              senderId,
-              timestamp
-          }
-      });
+      conversationUpdate.lastMessage = {
+            content,
+            senderId,
+            timestamp
+        }
     }
+
+    batch.update(conversationRef, conversationUpdate);
 
     await batch.commit();
 }

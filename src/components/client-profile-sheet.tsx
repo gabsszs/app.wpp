@@ -19,7 +19,7 @@ import { Separator } from "./ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { PlusCircle, Tag, StickyNote, User as UserIcon, Building, X } from "lucide-react";
 import { ScrollArea } from "./ui/scroll-area";
-import { format } from "date-fns";
+import { format, toDate } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Dialog, DialogContent, DialogOverlay } from "./ui/dialog";
 
@@ -32,6 +32,13 @@ export function ClientProfileSheet({ conversation, agent }: ClientProfileSheetPr
     if (!conversation) return null;
 
     const internalNotes = conversation.messages.filter(msg => msg.type === 'note');
+
+    const formatTimestamp = (timestamp: any): Date | null => {
+        if (!timestamp) return null;
+        if (timestamp instanceof Date) return timestamp;
+        if (typeof timestamp.toDate === 'function') return timestamp.toDate();
+        return toDate(timestamp);
+    }
 
     return (
         <DialogContent
@@ -144,14 +151,19 @@ export function ClientProfileSheet({ conversation, agent }: ClientProfileSheetPr
                                 <CardContent>
                                    {internalNotes.length > 0 ? (
                                         <div className="space-y-4">
-                                            {internalNotes.map(note => (
+                                            {internalNotes.map(note => {
+                                                const formattedDate = formatTimestamp(note.timestamp);
+                                                return (
                                                 <div key={note.id} className="text-sm p-3 bg-muted/50 rounded-md">
                                                      <p className="whitespace-pre-wrap break-words">{note.content}</p>
-                                                     <p className="text-xs text-muted-foreground mt-1 text-right">
-                                                         {format(note.timestamp instanceof Date ? note.timestamp : note.timestamp.toDate(), 'dd/MM/yyyy HH:mm')}
-                                                     </p>
+                                                     {formattedDate && (
+                                                         <p className="text-xs text-muted-foreground mt-1 text-right">
+                                                            {format(formattedDate, 'dd/MM/yyyy HH:mm')}
+                                                         </p>
+                                                     )}
                                                 </div>
-                                            ))}
+                                                )
+                                            })}
                                         </div>
                                    ) : (
                                      <div className="text-center text-muted-foreground py-4">
