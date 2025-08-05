@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { users } from '@/lib/mock-data';
@@ -11,10 +11,14 @@ import type { User } from '@/lib/types';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { cn } from '@/lib/utils';
 
 export function ContactsView() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [activeLetter, setActiveLetter] = useState('A');
   const contacts = users.filter(user => user.role === 'client');
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const letterRefs = useRef<Record<string, HTMLDivElement>>({});
 
   const filteredAndGroupedContacts = useMemo(() => {
     const filtered = contacts.filter(contact =>
@@ -38,6 +42,38 @@ export function ContactsView() {
   }, [contacts, searchTerm]);
 
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('');
+  
+  const handleScroll = useCallback(() => {
+    const scrollContainer = scrollAreaRef.current?.children[0] as HTMLDivElement;
+    if (!scrollContainer) return;
+    
+    const { scrollTop } = scrollContainer;
+    let currentLetter = '';
+
+    for (const letter of Object.keys(letterRefs.current)) {
+      const el = letterRefs.current[letter];
+      if (el && el.offsetTop - 60 <= scrollTop) { // 60px offset for better accuracy
+        currentLetter = letter;
+      }
+    }
+
+    if (currentLetter && currentLetter !== activeLetter) {
+      setActiveLetter(currentLetter);
+    }
+  }, [activeLetter]);
+
+  const handleLetterClick = (letter: string) => {
+      const el = letterRefs.current[letter];
+      const scrollContainer = scrollAreaRef.current?.children[0] as HTMLDivElement;
+      if (el && scrollContainer) {
+          scrollContainer.scrollTo({
+              top: el.offsetTop - 10, // Small offset to not stick to the top
+              behavior: 'smooth'
+          });
+          setActiveLetter(letter);
+      }
+  }
+
 
   return (
     <>
@@ -56,7 +92,7 @@ export function ContactsView() {
           </div>
         </DialogHeader>
 
-        <div className="flex-1 flex flex-col min-h-0 border rounded-lg">
+        <div className="flex-1 flex flex-col min-h-0 border rounded-lg mt-4">
             <div className="p-4 border-b">
                <div className="relative">
                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -70,10 +106,10 @@ export function ContactsView() {
             </div>
             <div className="flex-1 flex min-h-0 p-4">
                 <div className="flex-grow w-full h-full flex">
-                    <ScrollArea className="flex-1 pr-6">
+                    <ScrollArea className="flex-1 pr-6" ref={scrollAreaRef} onScroll={handleScroll}>
                         {Object.keys(filteredAndGroupedContacts).length > 0 ? (
                             Object.entries(filteredAndGroupedContacts).map(([letter, contacts]) => (
-                                <div key={letter} id={`letter-${letter}`} className="mb-4">
+                                <div key={letter} ref={ref => {if(ref) letterRefs.current[letter] = ref}} className="mb-4">
                                     <h2 className="text-xl font-bold text-primary pl-2 pb-2 border-b mb-2">{letter}</h2>
                                     <div className="space-y-1">
                                         {contacts.map(contact => (
@@ -97,15 +133,18 @@ export function ContactsView() {
                             </div>
                         )}
                     </ScrollArea>
-                    <div className="flex flex-col items-center justify-center space-y-1 pl-4">
+                    <div className="flex flex-col items-center justify-between pl-4">
                         {alphabet.map(letter => (
-                            <a 
+                            <button
                                 key={letter} 
-                                href={`#letter-${letter}`} 
-                                className="text-xs font-bold text-primary hover:underline"
+                                onClick={() => handleLetterClick(letter)} 
+                                className={cn(
+                                    "text-xs font-bold text-muted-foreground hover:text-primary transition-all",
+                                    activeLetter === letter && "text-primary scale-125"
+                                )}
                             >
                                 {letter}
-                            </a>
+                            </button>
                         ))}
                     </div>
                 </div>
