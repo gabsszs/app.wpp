@@ -79,12 +79,7 @@ function SettingsSidebarContent() {
     return (
         <>
             <SidebarHeader>
-                 <Button asChild variant="ghost" className="w-full justify-start gap-2">
-                    <Link href="/chat">
-                        <Home className="h-5 w-5" />
-                        <span className={cn(state === 'collapsed' && "hidden")}>Voltar para o Chat</span>
-                    </Link>
-                 </Button>
+                 {/* O botão foi removido daqui */}
             </SidebarHeader>
             <SidebarContent>
                 <SidebarMenu>
@@ -139,6 +134,12 @@ function SettingsSidebarContent() {
                                   </div>
                                 </DropdownMenuLabel>
                                 <DropdownMenuSeparator />
+                                <DropdownMenuItem asChild>
+                                    <Link href="/chat">
+                                        <ChevronLeft className="mr-2 h-4 w-4" />
+                                        <span>Voltar para o Chat</span>
+                                    </Link>
+                                </DropdownMenuItem>
                                 <DropdownMenuItem onClick={handleSignOut}>
                                     <LogOut className="mr-2 h-4 w-4" />
                                     <span>Sair</span>
