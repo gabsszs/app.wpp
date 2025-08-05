@@ -16,12 +16,13 @@ import { useToast } from '@/hooks/use-toast';
 import { ChevronLeft } from 'lucide-react';
 import { auth } from '@/lib/firebase';
 import { sendPasswordResetEmail } from 'firebase/auth';
+import { useRouter } from 'next/navigation';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
   const { toast } = useToast();
+  const router = useRouter();
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -29,11 +30,8 @@ export default function ForgotPasswordPage() {
 
     try {
       await sendPasswordResetEmail(auth, email);
-      setIsSubmitted(true);
-      toast({
-        title: 'Email Enviado',
-        description: 'Se o email estiver cadastrado, você receberá um link para redefinir sua senha.',
-      });
+      // Redirect to a dedicated confirmation page
+      router.push('/auth/forgot-password-sent');
     } catch (error: any) {
       let errorMessage = "Ocorreu um erro. Tente novamente.";
        if (error.code === 'auth/invalid-email') {
@@ -54,37 +52,27 @@ export default function ForgotPasswordPage() {
       <CardHeader className="text-center">
         <CardTitle className="text-3xl font-bold">Recuperar Senha</CardTitle>
         <CardDescription>
-          {isSubmitted
-            ? 'Verifique sua caixa de entrada.'
-            : 'Digite seu e-mail para receber o link de redefinição.'}
+          Digite seu e-mail para receber o link de redefinição.
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {isSubmitted ? (
-          <div className="text-center">
-            <p className="text-muted-foreground">
-              Não recebeu o email? Verifique sua pasta de spam ou tente novamente mais tarde.
-            </p>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="seu@email.com"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={isLoading}
+            />
           </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="seu@email.com"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={isLoading}
-              />
-            </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? 'Enviando...' : 'Enviar Link'}
-            </Button>
-          </form>
-        )}
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? 'Enviando...' : 'Enviar Link de Redefinição'}
+          </Button>
+        </form>
         <div className="mt-6 text-center">
           <Link
             href="/auth/login"
