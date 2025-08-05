@@ -16,6 +16,8 @@ import {
   SidebarInset,
   SidebarHeader,
   SidebarFooter,
+  useSidebar,
+  SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '@/lib/firebase';
@@ -24,6 +26,15 @@ import { Separator } from '@/components/ui/separator';
 import { signOut } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  DropdownMenuLabel,
+} from "@/components/ui/dropdown-menu"
+
 
 const sidebarNavItems = [
   {
@@ -48,36 +59,33 @@ const sidebarNavItems = [
   },
 ];
 
-export default function SettingsLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const pathname = usePathname();
-  const [user, loading] = useAuthState(auth);
-  const router = useRouter();
-  const { toast } = useToast();
+function SettingsSidebarContent() {
+    const pathname = usePathname();
+    const [user, loading] = useAuthState(auth);
+    const router = useRouter();
+    const { toast } = useToast();
+    const { state } = useSidebar();
 
-  const handleSignOut = async () => {
-    try {
-      await signOut(auth);
-      router.push('/auth/login');
-      toast({ title: 'Você saiu!', description: 'Até a próxima!' });
-    } catch (error) {
-      toast({ title: 'Erro ao sair', description: 'Não foi possível fazer o logout. Tente novamente.', variant: 'destructive' });
-    }
-  };
+    const handleSignOut = async () => {
+        try {
+        await signOut(auth);
+        router.push('/auth/login');
+        toast({ title: 'Você saiu!', description: 'Até a próxima!' });
+        } catch (error) {
+        toast({ title: 'Erro ao sair', description: 'Não foi possível fazer o logout. Tente novamente.', variant: 'destructive' });
+        }
+    };
+
+    const TriggerIcon = state === 'collapsed' ? Home : ChevronLeft;
 
 
-  return (
-    <SidebarProvider defaultOpen>
-       <div className="flex h-screen w-full bg-muted/40">
-        <Sidebar className="h-full flex flex-col" collapsible="icon">
-             <SidebarHeader>
+    return (
+        <>
+            <SidebarHeader>
                  <Button asChild variant="ghost" className="w-full justify-start gap-2">
                     <Link href="/chat">
                         <Home className="h-5 w-5" />
-                        <span>Voltar para o Chat</span>
+                        <span className={cn(state === 'collapsed' && "hidden")}>Voltar para o Chat</span>
                     </Link>
                  </Button>
             </SidebarHeader>
@@ -92,7 +100,7 @@ export default function SettingsLayout({
                                 tooltip={item.title}
                             >
                                 {item.icon}
-                                <span>{item.title}</span>
+                                <span className={cn(state === 'collapsed' && "hidden")}>{item.title}</span>
                             </SidebarMenuButton>
                          </Link>
                     </SidebarMenuItem>
@@ -110,21 +118,60 @@ export default function SettingsLayout({
                         </div>
                     </div>
                 ) : user ? (
-                    <div className="flex items-center gap-2 p-2">
-                         <Avatar className="h-9 w-9">
-                            <AvatarImage src={user.photoURL || ''} alt={user.displayName || ''} />
-                            <AvatarFallback>{user.displayName?.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <div className="flex flex-col w-full truncate">
-                            <span className="font-semibold text-foreground text-sm truncate">{user.displayName}</span>
-                            <span className="text-xs text-muted-foreground truncate">{user.email}</span>
+                    <div className={cn("flex items-center p-2", state === 'collapsed' ? 'justify-center' : 'justify-between w-full')}>
+                        <DropdownMenu>
+                           <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" className={cn("flex-grow justify-start p-2 h-auto", state === 'collapsed' && "p-0 aspect-square h-10 w-10")}>
+                                    <Avatar className={cn("h-8 w-8", state === 'collapsed' && "h-full w-full")}>
+                                        <AvatarImage src={user.photoURL || ''} alt={user.displayName || ''} />
+                                        <AvatarFallback>{user.displayName?.charAt(0)}</AvatarFallback>
+                                    </Avatar>
+                                    <div className={cn("flex flex-col items-start flex-grow truncate", state === 'collapsed' && "hidden")}>
+                                        <span className="font-semibold text-foreground text-sm truncate">{user.displayName}</span>
+                                        <span className="text-xs text-muted-foreground truncate">{user.email}</span>
+                                    </div>
+                                </Button>
+                           </DropdownMenuTrigger>
+                            <DropdownMenuContent className="w-56 mb-2" side="top" align="start">
+                                <DropdownMenuLabel className="font-normal">
+                                  <div className="flex flex-col space-y-1">
+                                    <p className="text-sm font-medium leading-none">{user.displayName}</p>
+                                    <p className="text-xs leading-none text-muted-foreground">
+                                      {user.email}
+                                    </p>
+                                  </div>
+                                </DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem onClick={handleSignOut}>
+                                    <LogOut className="mr-2 h-4 w-4" />
+                                    <span>Sair</span>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                        
+                        <div className={cn("flex items-center", state === 'collapsed' && "hidden")}>
+                            <SidebarTrigger className={cn("h-7 w-7 shrink-0")} >
+                                <ChevronLeft />
+                            </SidebarTrigger>
                         </div>
-                        <Button variant="ghost" size="icon" className="shrink-0" onClick={handleSignOut}>
-                            <LogOut className="h-4 w-4" />
-                        </Button>
                     </div>
                 ): null}
              </SidebarFooter>
+        </>
+    )
+}
+
+export default function SettingsLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+
+  return (
+    <SidebarProvider defaultOpen>
+       <div className="flex h-screen w-full bg-muted/40">
+        <Sidebar className="h-full flex flex-col" collapsible="icon">
+            <SettingsSidebarContent />
         </Sidebar>
         <SidebarInset className="flex-1 flex flex-col">
             <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:px-6">
