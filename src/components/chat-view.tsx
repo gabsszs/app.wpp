@@ -26,7 +26,7 @@ import { format, isToday, isYesterday, differenceInCalendarDays, toDate } from '
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { Skeleton } from './ui/skeleton';
-import { Dialog, DialogTrigger, DialogContent } from '@/components/ui/dialog';
+import { Sheet, SheetTrigger, SheetContent } from '@/components/ui/sheet';
 import { ClientProfileSheet } from './client-profile-sheet';
 
 
@@ -61,14 +61,17 @@ export function ChatView({
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
-    if (draft) {
-      setMessage(draft.message);
-      setInputType(draft.type);
-    } else {
-      setMessage('');
-      setInputType('message');
+    // When conversation changes, clear the input field unless there's a draft
+    if (conversation) {
+        if (draft) {
+          setMessage(draft.message);
+          setInputType(draft.type);
+        } else {
+          setMessage('');
+          setInputType('message');
+        }
     }
-  }, [draft, conversation]);
+  }, [conversation, draft]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newMessage = e.target.value;
@@ -119,9 +122,10 @@ export function ChatView({
     setInputType(currentInputType); // Ensure we are in message mode for suggestions
     try {
       const result = await getSuggestedResponse({ customerMessage: lastCustomerMessage.content });
-      setMessage(result.suggestedResponse);
+      const newDraft = result.suggestedResponse;
+      setMessage(newDraft);
       if(conversation) {
-        onDraftChange(conversation.id, result.suggestedResponse, currentInputType);
+        onDraftChange(conversation.id, newDraft, currentInputType);
       }
     } catch (error) {
       console.error('Error getting suggestion:', error);
@@ -198,10 +202,10 @@ export function ChatView({
 
 
   return (
-    <Dialog>
+    <Sheet>
         <div className="relative flex h-screen flex-col">
           <header className="flex items-center justify-between border-b bg-background p-4">
-            <DialogTrigger asChild>
+            <SheetTrigger asChild>
                 <div className="flex items-center gap-3 cursor-pointer">
                     <SidebarTrigger className="md:hidden">
                         <ChevronLeft />
@@ -215,7 +219,7 @@ export function ChatView({
                         {/* <p className="text-sm text-muted-foreground">{client.status}</p> */}
                     </div>
                 </div>
-            </DialogTrigger>
+            </SheetTrigger>
             
             <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon">
@@ -358,6 +362,6 @@ export function ChatView({
         </footer>
         </div>
         <ClientProfileSheet conversation={conversation} agent={loggedInUser} />
-    </Dialog>
+    </Sheet>
   );
 }
