@@ -41,7 +41,7 @@ export default function ContactsPage() {
   return (
     <div className="container mx-auto p-4 sm:p-6 lg:p-8 h-[calc(100vh-4rem)] flex flex-col">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl lg:text-3xl font-bold tracking-tight">Contatos</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Contatos</h1>
         <Button>
           <PlusCircle className="mr-2 h-4 w-4" />
           Adicionar Contato
@@ -65,7 +65,7 @@ export default function ContactsPage() {
                     {Object.keys(filteredAndGroupedContacts).length > 0 ? (
                         Object.entries(filteredAndGroupedContacts).map(([letter, contacts]) => (
                             <div key={letter} id={`letter-${letter}`} className="mb-4">
-                                <h2 className="text-xl font-bold text-primary pl-2 pb-2 border-b mb-2">{letter}</h2>
+                                <h2 className="text-lg font-bold text-primary pl-2 pb-2 border-b mb-2">{letter}</h2>
                                 <div className="space-y-1">
                                     {contacts.map(contact => (
                                         <div key={contact.id} className="flex items-center p-2 rounded-md hover:bg-muted/50 transition-colors duration-200">

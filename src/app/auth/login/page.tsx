@@ -60,14 +60,14 @@ export default function LoginPage() {
 
   return (
     <Card>
-      <CardHeader className="text-center">
-        <CardTitle className="text-3xl font-bold">Acesse sua Conta</CardTitle>
+      <CardHeader className="text-center p-6">
+        <CardTitle className="text-2xl font-bold">Acesse sua Conta</CardTitle>
         <CardDescription>
           Bem-vindo de volta! Insira suas credenciais.
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input

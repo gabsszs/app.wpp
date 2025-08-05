@@ -14,11 +14,11 @@ import { MailCheck } from 'lucide-react';
 export default function ForgotPasswordSentPage() {
   return (
     <Card>
-      <CardHeader className="text-center">
+      <CardHeader className="text-center p-6">
         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
           <MailCheck className="h-6 w-6 text-primary" />
         </div>
-        <CardTitle className="mt-4 text-3xl font-bold">Verifique seu E-mail</CardTitle>
+        <CardTitle className="mt-4 text-2xl font-bold">Verifique seu E-mail</CardTitle>
         <CardDescription>
           Se o endereço de e-mail estiver em nosso sistema, você receberá um link para redefinir sua senha.
         </CardDescription>

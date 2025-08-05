@@ -69,14 +69,14 @@ export default function SignupPage() {
 
   return (
     <Card>
-      <CardHeader className="text-center">
-        <CardTitle className="text-3xl font-bold">Crie sua Conta</CardTitle>
+      <CardHeader className="text-center p-6">
+        <CardTitle className="text-2xl font-bold">Crie sua Conta</CardTitle>
         <CardDescription>
           Comece a otimizar seu atendimento hoje mesmo.
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="name">Nome Completo</Label>
             <Input

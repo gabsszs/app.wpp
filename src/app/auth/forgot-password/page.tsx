@@ -49,14 +49,14 @@ export default function ForgotPasswordPage() {
 
   return (
     <Card>
-      <CardHeader className="text-center">
-        <CardTitle className="text-3xl font-bold">Recuperar Senha</CardTitle>
+      <CardHeader className="text-center p-6">
+        <CardTitle className="text-2xl font-bold">Recuperar Senha</CardTitle>
         <CardDescription>
           Digite seu e-mail para receber o link de redefinição.
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
