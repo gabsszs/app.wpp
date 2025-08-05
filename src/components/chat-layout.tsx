@@ -290,7 +290,7 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
             onOpenNewChat={() => setIsNewChatDialogOpen(true)}
           />
         </Sidebar>
-        <SidebarInset className="flex-1 relative">
+        <SidebarInset className="flex-1">
           <ChatView
             conversation={enrichedSelectedConversation}
             conversations={conversations}
