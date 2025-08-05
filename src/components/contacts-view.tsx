@@ -73,7 +73,7 @@ export function ContactsView() {
 
   return (
     <div className="flex-1 flex flex-col min-h-0">
-        <div className="px-6 pb-4">
+        <div className="px-6 pt-6 pb-4">
             <div className="relative">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input 
@@ -113,7 +113,7 @@ export function ContactsView() {
                         </div>
                     )}
                 </ScrollArea>
-                <div className="flex flex-col items-center justify-between pl-4">
+                <div className="flex flex-col items-center justify-between py-2 pl-4">
                     {alphabet.map(letter => (
                         <button
                             key={letter} 

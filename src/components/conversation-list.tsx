@@ -137,7 +137,9 @@ export function ConversationList({
                         </div>
                       </DialogHeader>
                     </div>
-                    <ContactsView />
+                    <div className="flex-1 flex flex-col min-h-0">
+                      <ContactsView />
+                    </div>
                   </DialogContent>
               </Dialog>
               <Dialog open={openNewChatDialog} onOpenChange={setOpenNewChatDialog}>
@@ -253,7 +255,7 @@ export function ConversationList({
         <SidebarFooter>
           <Separator />
           <div className="flex p-2 justify-between items-center w-full">
-              <div>
+              <div className={cn(state === 'collapsed' && 'hidden')}>
                   <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                           <Button variant="ghost" className="flex-grow justify-start p-2 h-auto">
@@ -293,37 +295,39 @@ export function ConversationList({
               </div>
               
               <SidebarTrigger className="shrink-0" >
-                  <ChevronLeft />
+                  {state === 'expanded' ? <ChevronLeft /> : <ChevronRight />}
               </SidebarTrigger>
           </div>
       </SidebarFooter>
       </div>
 
-      <div className={cn(state === 'collapsed' ? 'flex flex-col h-full items-center py-2' : 'hidden')}>
-        <div className="flex flex-col items-center gap-2">
-            <Tooltip>
-                <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" className="shrink-0">
-                        <Users className="h-5 w-5" />
-                    </Button>
-                </TooltipTrigger>
-                <TooltipContent side="right">
-                  <p>Contatos</p>
-                </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-                <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" className="shrink-0">
-                        <PlusCircle className="h-5 w-5" />
-                    </Button>
-                </TooltipTrigger>
-                <TooltipContent side="right">
-                  <p>Nova Conversa</p>
-                </TooltipContent>
-            </Tooltip>
-        </div>
-        <Separator className="my-4" />
-        <SidebarContent className="p-0">
+      <div className={cn(state === 'collapsed' ? 'flex flex-col h-full items-center' : 'hidden')}>
+        <SidebarHeader className="p-2">
+            <div className="flex flex-col items-center gap-2">
+              <Tooltip>
+                  <TooltipTrigger asChild>
+                      <Button variant="ghost" size="icon" className="shrink-0">
+                          <Users className="h-5 w-5" />
+                      </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">
+                    <p>Contatos</p>
+                  </TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                  <TooltipTrigger asChild>
+                      <Button variant="ghost" size="icon" className="shrink-0">
+                          <PlusCircle className="h-5 w-5" />
+                      </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">
+                    <p>Nova Conversa</p>
+                  </TooltipContent>
+              </Tooltip>
+            </div>
+        </SidebarHeader>
+        <Separator />
+        <SidebarContent className='p-2'>
             <SidebarMenu>
                 {conversations.map((conv) => (
                     <SidebarMenuItem key={conv.id}>
@@ -343,8 +347,8 @@ export function ConversationList({
             </SidebarMenu>
         </SidebarContent>
         <SidebarFooter className="w-full">
-            <Separator className="mb-2" />
-            <div className="flex justify-center items-center w-full">
+            <Separator />
+            <div className="flex flex-col p-2 gap-2 items-center w-full">
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="shrink-0">
@@ -377,12 +381,14 @@ export function ConversationList({
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
+            
+                 <SidebarTrigger className="shrink-0">
+                     {state === 'expanded' ? <ChevronLeft /> : <ChevronRight />}
+                </SidebarTrigger>
             </div>
-             <SidebarTrigger className="shrink-0 mt-4">
-                 <ChevronRight />
-            </SidebarTrigger>
         </SidebarFooter>
       </div>
     </>
   );
 }
+
