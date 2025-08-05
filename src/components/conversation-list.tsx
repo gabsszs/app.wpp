@@ -42,6 +42,10 @@ import type { Conversation, User as TUser, Message } from '@/lib/types';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { signOut } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
+import { useRouter } from 'next/navigation';
+import { useToast } from '@/hooks/use-toast';
 
 
 interface ConversationListProps {
@@ -59,6 +63,19 @@ export function ConversationList({
 }: ConversationListProps) {
   const { state } = useSidebar();
   const [openNewChatDialog, setOpenNewChatDialog] = useState(false);
+  const router = useRouter();
+  const { toast } = useToast();
+
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      router.push('/auth/login');
+      toast({ title: 'Você saiu!', description: 'Até a próxima!' });
+    } catch (error) {
+      toast({ title: 'Erro ao sair', description: 'Não foi possível fazer o logout. Tente novamente.', variant: 'destructive' });
+    }
+  };
+
 
   // This needs to be replaced with real-time data
   const getUnreadCount = (messages: Message[]) => {
@@ -215,20 +232,15 @@ export function ConversationList({
       </SidebarContent>
       <SidebarFooter>
         <div className={cn("flex flex-col gap-2 w-full")}>
-            {loggedInUser.role !== 'agent' && (
-              <div className={cn(state === 'collapsed' && "hidden", "px-2")}>
-                <Link href="/templates" passHref>
-                  <Button variant="outline" className="w-full justify-start gap-2">
-                    <FileText className="h-4 w-4" />
-                    <span className={cn(state === 'collapsed' && "hidden")}>Templates</span>
-                  </Button>
-                </Link>
-                <Button variant="outline" className="w-full justify-start gap-2 mt-2">
-                  <Users className="h-4 w-4" />
-                  <span className={cn(state === 'collapsed' && "hidden")}>Equipes</span>
+            <div className={cn(state === 'collapsed' && "hidden", "px-2")}>
+              <Link href="/templates" passHref>
+                <Button variant="outline" className="w-full justify-start gap-2">
+                  <FileText className="h-4 w-4" />
+                  <span className={cn(state === 'collapsed' && "hidden")}>Templates</span>
                 </Button>
-              </div>
-            )}
+              </Link>
+            </div>
+
              <Separator />
               <div className={cn("flex items-center p-2", state === 'collapsed' ? 'justify-center' : 'justify-between w-full')}>
                 <div className={cn("flex-grow", state === 'collapsed' && "hidden")}>
@@ -262,7 +274,7 @@ export function ConversationList({
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem>
+                      <DropdownMenuItem onClick={handleSignOut}>
                         <LogOut className="mr-2 h-4 w-4" />
                         <span>Sair</span>
                       </DropdownMenuItem>

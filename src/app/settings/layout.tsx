@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Building, Users, ShieldCheck, Home } from 'lucide-react';
+import { Building, Users, ShieldCheck, Home, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -29,6 +29,11 @@ const sidebarNavItems = [
     href: '/settings/roles',
     icon: <ShieldCheck className="h-5 w-5" />,
   },
+  {
+    title: 'Templates',
+    href: '/templates',
+    icon: <FileText className="h-5 w-5" />
+  }
 ];
 
 export default function SettingsLayout({
