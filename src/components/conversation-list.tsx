@@ -99,6 +99,16 @@ export function ConversationList({
     return toDate(timestamp || new Date());
   }
 
+  if (state === 'collapsed') {
+    return (
+        <div className="flex h-full items-center justify-center">
+             <SidebarTrigger className="h-10 w-10">
+                <TriggerIcon />
+            </SidebarTrigger>
+        </div>
+    )
+  }
+
   return (
     <>
       <SidebarHeader>
