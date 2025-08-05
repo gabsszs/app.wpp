@@ -113,7 +113,7 @@ export function ContactsView() {
                         </div>
                     )}
                 </ScrollArea>
-                <div className="flex flex-col items-center justify-between py-2 pl-4">
+                <div className="flex flex-col items-center justify-center space-y-1 pl-4">
                     {alphabet.map(letter => (
                         <button
                             key={letter} 
