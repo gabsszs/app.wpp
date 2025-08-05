@@ -232,15 +232,6 @@ export function ConversationList({
       </SidebarContent>
       <SidebarFooter>
         <div className={cn("flex flex-col gap-2 w-full")}>
-            <div className={cn(state === 'collapsed' && "hidden", "px-2")}>
-              <Link href="/templates" passHref>
-                <Button variant="outline" className="w-full justify-start gap-2">
-                  <FileText className="h-4 w-4" />
-                  <span className={cn(state === 'collapsed' && "hidden")}>Templates</span>
-                </Button>
-              </Link>
-            </div>
-
              <Separator />
               <div className={cn("flex items-center p-2", state === 'collapsed' ? 'justify-center' : 'justify-between w-full')}>
                 <div className={cn("flex-grow", state === 'collapsed' && "hidden")}>

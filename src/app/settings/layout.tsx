@@ -29,11 +29,6 @@ const sidebarNavItems = [
     href: '/settings/roles',
     icon: <ShieldCheck className="h-5 w-5" />,
   },
-  {
-    title: 'Templates',
-    href: '/templates',
-    icon: <FileText className="h-5 w-5" />
-  }
 ];
 
 export default function SettingsLayout({
