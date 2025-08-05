@@ -1,0 +1,29 @@
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Users can only read their own user profile
+    match /users/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      // Allow creation for new users, and updates for existing ones
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Conversations can be read by the assigned agent or the client
+    match /conversations/{conversationId} {
+      allow read, update: if request.auth != null && (request.auth.uid == resource.data.agentId || request.auth.uid == resource.data.clientId);
+      // Allow creation for authenticated users
+      allow create: if request.auth != null;
+    }
+
+    // Messages can be read by participants, and created by participants
+    match /conversations/{conversationId}/messages/{messageId} {
+       allow read: if request.auth != null && (request.auth.uid == get(/databases/$(database)/documents/conversations/$(conversationId)).data.agentId || request.auth.uid == get(/databases/$(database)/documents/conversations/$(conversationId)).data.clientId);
+       allow create: if request.auth != null && request.auth.uid == request.resource.data.senderId;
+       // Disallow updates and deletes for message integrity
+       allow update, delete: if false;
+    }
+  }
+}

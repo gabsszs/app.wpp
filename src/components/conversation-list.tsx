@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow, toDate } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Search, User, Users, Settings, FileText, LogOut, PlusCircle, ChevronLeft, ChevronRight, Filter } from 'lucide-react';
 import {
@@ -39,7 +39,6 @@ import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { Conversation, User as TUser, Message } from '@/lib/types';
-import { users } from '@/lib/mock-data';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -59,21 +58,29 @@ export function ConversationList({
   loggedInUser,
 }: ConversationListProps) {
   const { state } = useSidebar();
-  const getClient = (clientId: string) => users.find(u => u.id === clientId);
   const [openNewChatDialog, setOpenNewChatDialog] = useState(false);
 
+  // This needs to be replaced with real-time data
   const getUnreadCount = (messages: Message[]) => {
-    return messages.filter(m => m.senderId !== loggedInUser.id && m.status !== 'read').length;
+    // This logic is flawed without real-time message fetching per conversation
+    return 0;
   }
 
   const handleCreateNewChat = (event: React.FormEvent) => {
     event.preventDefault();
-    // Lógica para criar novo chat aqui
+    // Logic to create new chat here
     console.log("Novo chat criado!");
     setOpenNewChatDialog(false);
   }
 
   const TriggerIcon = state === 'collapsed' ? ChevronRight : ChevronLeft;
+
+  const formatTimestamp = (timestamp: any): Date => {
+    if (timestamp && typeof timestamp.toDate === 'function') {
+      return timestamp.toDate();
+    }
+    return toDate(timestamp || new Date());
+  }
 
   return (
     <>
@@ -161,10 +168,9 @@ export function ConversationList({
       <Separator />
       <SidebarContent className='p-2'>
         <SidebarMenu>
-          {conversations.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()).map((conv) => {
-            const client = getClient(conv.clientId);
-            const lastMessage = conv.messages[conv.messages.length - 1];
-            const unreadCount = getUnreadCount(conv.messages);
+          {conversations.map((conv) => {
+            const lastMessage = conv.lastMessage;
+            const unreadCount = 0; // Needs real-time logic
             return (
               <SidebarMenuItem key={conv.id}>
                 <SidebarMenuButton
@@ -174,12 +180,12 @@ export function ConversationList({
                     "w-full h-auto justify-start p-2 gap-3",
                     state === 'collapsed' && "data-[active=true]:bg-transparent"
                   )}
-                  tooltip={client?.name}
+                  tooltip={conv.clientName}
                 >
                   <div className="relative">
                     <Avatar className="h-10 w-10">
-                      <AvatarImage src={client?.avatarUrl} alt={client?.name} />
-                      <AvatarFallback>{client?.name.charAt(0)}</AvatarFallback>
+                      <AvatarImage src={conv.clientAvatarUrl} alt={conv.clientName} />
+                      <AvatarFallback>{conv.clientName?.charAt(0)}</AvatarFallback>
                     </Avatar>
                      {unreadCount > 0 && state === 'collapsed' && (
                         <span className="absolute -top-1 -right-1 block h-3 w-3 rounded-full bg-primary ring-2 ring-background" />
@@ -187,9 +193,9 @@ export function ConversationList({
                   </div>
                   <div className={cn("flex flex-col items-start text-left flex-grow truncate", state === 'collapsed' && "hidden")}>
                     <div className="flex justify-between w-full">
-                      <p className="font-semibold">{client?.name}</p>
+                      <p className="font-semibold">{conv.clientName}</p>
                       <span className="text-xs text-muted-foreground">
-                        {formatDistanceToNow(new Date(conv.updatedAt), { addSuffix: true, locale: ptBR })}
+                        {formatDistanceToNow(formatTimestamp(conv.updatedAt), { addSuffix: true, locale: ptBR })}
                       </span>
                     </div>
                     <p className="text-sm text-muted-foreground truncate w-full">
@@ -270,7 +276,3 @@ export function ConversationList({
     </>
   );
 }
-
-    
-
-    

@@ -1,10 +1,10 @@
+
 'use client';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import ChatLayout from '@/components/chat-layout';
-import { conversations, users } from '@/lib/mock-data';
 import type { User } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { signOut } from 'firebase/auth';
@@ -60,18 +60,16 @@ export default function ChatPage() {
     );
   }
   
-  // This is a placeholder. In a real app, you would fetch user data from your database
-  // based on the authenticated user's UID.
   const loggedInUser: User = {
     id: user.uid,
     name: user.displayName || 'Usuário',
     email: user.email || '',
     avatarUrl: user.photoURL || `https://placehold.co/100x100.png`,
-    role: 'agent', // You might want to manage roles in your database
+    role: 'agent', // This should be managed in your database (e.g., in a 'users' collection)
     status: 'online',
     company: 'ConectaZap',
   };
 
 
-  return <ChatLayout conversations={conversations} loggedInUser={loggedInUser} />;
+  return <ChatLayout loggedInUser={loggedInUser} />;
 }

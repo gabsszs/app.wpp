@@ -1,71 +1,95 @@
+
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { Conversation, User } from '@/lib/types';
 import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar';
 import { ConversationList } from './conversation-list';
 import { ChatView } from './chat-view';
+import { sendMessage, markMessagesAsRead } from '@/lib/firestore';
+import { useCollectionData } from 'react-firebase-hooks/firestore';
+import { collection, query, where, orderBy, doc, collectionGroup } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { Skeleton } from './ui/skeleton';
 
 interface ChatLayoutProps {
-  conversations: Conversation[];
   loggedInUser: User;
 }
 
-export default function ChatLayout({ conversations, loggedInUser }: ChatLayoutProps) {
-  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(conversations[0] || null);
-  const [localConversations, setLocalConversations] = useState<Conversation[]>(conversations);
+export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
+  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
 
-  const handleSendMessage = (conversationId: string, messageContent: string) => {
-    const newMessage = {
-      id: `msg-${Date.now()}`,
-      conversationId,
-      senderId: loggedInUser.id,
-      content: messageContent,
-      timestamp: new Date(),
-      status: 'sent' as const,
-    };
+  // Real-time conversations
+  const conversationsQuery = query(
+      collection(db, 'conversations'), 
+      where('agentId', '==', loggedInUser.id), 
+      orderBy('updatedAt', 'desc')
+  );
+  const [conversations, loadingConversations, errorConversations] = useCollectionData(conversationsQuery, { idField: 'id' });
+  
+  // Real-time messages for the selected conversation
+   const messagesQuery = selectedConversation ? query(
+      collection(db, 'conversations', selectedConversation.id, 'messages'),
+      orderBy('timestamp', 'asc')
+    ) : null;
+  const [messages, loadingMessages, errorMessages] = useCollectionData(messagesQuery, { idField: 'id' });
 
-    const updatedConversations = localConversations.map((conv) => {
-      if (conv.id === conversationId) {
-        // Mark messages as read
-        const updatedMessages = conv.messages.map(m => ({ ...m, status: 'read' as const }));
 
-        const updatedConv = {
-          ...conv,
-          messages: [...updatedMessages, newMessage],
-          updatedAt: new Date(),
-        };
-        setSelectedConversation(updatedConv);
-        return updatedConv;
-      }
-      return conv;
-    });
-    setLocalConversations(updatedConversations);
+  useEffect(() => {
+    // Automatically select the first conversation on initial load
+    if (conversations && conversations.length > 0 && !selectedConversation) {
+      setSelectedConversation(conversations[0] as Conversation);
+    }
+  }, [conversations, selectedConversation]);
+
+  const handleSendMessage = async (conversationId: string, messageContent: string) => {
+    if (!loggedInUser) return;
+    try {
+      await sendMessage(conversationId, loggedInUser.id, messageContent);
+    } catch (error) {
+        console.error("Error sending message:", error);
+        // Optionally show a toast to the user
+    }
   };
   
-  const handleSelectConversation = (conversation: Conversation) => {
-    // When a conversation is selected, mark all its messages from the other user as read
-    const updatedConversations = localConversations.map((conv) => {
-      if (conv.id === conversation.id) {
-        return {
-          ...conv,
-          messages: conv.messages.map(m =>
-            m.senderId !== loggedInUser.id ? { ...m, status: 'read' as const } : m
-          ),
-        };
-      }
-      return conv;
-    });
-    setLocalConversations(updatedConversations);
+  const handleSelectConversation = useCallback(async (conversation: Conversation) => {
     setSelectedConversation(conversation);
-  };
+    try {
+        await markMessagesAsRead(conversation.id, loggedInUser.id);
+    } catch(error) {
+        console.error("Error marking messages as read:", error);
+    }
+  }, [loggedInUser.id]);
+  
+  const enrichedSelectedConversation = selectedConversation ? {
+      ...selectedConversation,
+      messages: messages || [], // Combine conversation data with real-time messages
+  } : null;
+
+   if (loadingConversations) {
+     return (
+       <div className="flex h-screen w-full items-center justify-center">
+         <div className="w-full max-w-4xl flex gap-4 p-4">
+            <div className="w-1/3 space-y-2">
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-20 w-full" />
+                <Skeleton className="h-20 w-full" />
+                <Skeleton className="h-20 w-full" />
+            </div>
+            <div className="w-2/3 space-y-2">
+                <Skeleton className="h-full w-full" />
+            </div>
+         </div>
+       </div>
+     );
+   }
 
   return (
     <SidebarProvider defaultOpen>
       <div className="flex h-screen w-full">
         <Sidebar className="h-full" collapsible="icon">
           <ConversationList
-            conversations={localConversations}
+            conversations={(conversations as Conversation[]) || []}
             selectedConversation={selectedConversation}
             onSelectConversation={handleSelectConversation}
             loggedInUser={loggedInUser}
@@ -73,9 +97,10 @@ export default function ChatLayout({ conversations, loggedInUser }: ChatLayoutPr
         </Sidebar>
         <SidebarInset className="flex-1 relative">
           <ChatView
-            conversation={selectedConversation}
+            conversation={enrichedSelectedConversation}
             loggedInUser={loggedInUser}
             onSendMessage={handleSendMessage}
+            isLoadingMessages={loadingMessages}
           />
         </SidebarInset>
       </div>
