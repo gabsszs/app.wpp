@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Building, Users, ShieldCheck, LogOut, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Building, Users, ShieldCheck, LogOut, ChevronLeft, ChevronRight, MessageSquareText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -79,7 +79,24 @@ function SettingsSidebarContent() {
     return (
         <>
             <SidebarHeader>
-                 {/* O botão foi removido daqui */}
+                 <div className="flex items-center justify-between p-2">
+                    <div className="flex items-center gap-2">
+                        {state === 'expanded' ? (
+                            <>
+                                <Button variant="ghost" size="icon" className="shrink-0">
+                                    <MessageSquareText className="h-5 w-5 text-primary" />
+                                </Button>
+                                <h2 className="text-lg font-semibold tracking-tight">ConectaZap</h2>
+                            </>
+                        ) : (
+                             <div className="flex items-center justify-center pt-2 w-full">
+                                <Button variant="ghost" size="icon" className="shrink-0">
+                                    <MessageSquareText className="h-5 w-5 text-primary" />
+                                </Button>
+                            </div>
+                        )}
+                    </div>
+                </div>
             </SidebarHeader>
             <SidebarContent>
                 <SidebarMenu>
@@ -101,9 +118,9 @@ function SettingsSidebarContent() {
             </SidebarContent>
              <SidebarFooter>
                 <Separator />
-                <div className={cn("flex p-2", state === 'collapsed' ? 'justify-center' : 'justify-between items-center w-full')}>
+                <div className={cn("flex p-2 items-center w-full", state === 'collapsed' ? 'justify-center' : 'justify-between')}>
                     {loading ? (
-                        <div className={cn("flex items-center gap-2", state === 'collapsed' && "hidden")}>
+                         <div className={cn("flex items-center gap-2", state === 'collapsed' && "hidden")}>
                             <Skeleton className="h-9 w-9 rounded-full" />
                             <div className="flex flex-col gap-1 w-24">
                                <Skeleton className="h-4 w-3/4" />
@@ -111,15 +128,15 @@ function SettingsSidebarContent() {
                             </div>
                         </div>
                     ) : user ? (
-                       <div className={cn(state === 'collapsed' && "hidden")}>
+                        <div className={cn(state === 'collapsed' ? 'w-auto' : 'w-full')}>
                          <DropdownMenu>
                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="flex-grow justify-start p-2 h-auto">
+                                <Button variant="ghost" className={cn("justify-start p-2 h-auto", state === 'collapsed' ? 'w-auto' : 'flex-grow')}>
                                     <Avatar className="h-8 w-8">
                                         <AvatarImage src={user.photoURL || ''} alt={user.displayName || ''} />
                                         <AvatarFallback>{user.displayName?.charAt(0)}</AvatarFallback>
                                     </Avatar>
-                                    <div className="flex flex-col items-start flex-grow truncate ml-2">
+                                     <div className={cn("flex flex-col items-start flex-grow truncate ml-2", state === 'collapsed' && 'hidden')}>
                                         <span className="font-semibold text-foreground text-sm truncate">{user.displayName}</span>
                                         <span className="text-xs text-muted-foreground truncate">{user.email}</span>
                                     </div>
@@ -148,8 +165,13 @@ function SettingsSidebarContent() {
                             </DropdownMenuContent>
                         </DropdownMenu>
                        </div>
-                    ): null}
+                    ): <div className={cn(state === 'collapsed' && "hidden")}><Skeleton className="h-12 w-full"/></div>}
                     
+                    <SidebarTrigger className={cn("shrink-0", state === 'collapsed' && 'hidden')}>
+                        {state === 'expanded' ? <ChevronLeft /> : <ChevronRight />}
+                    </SidebarTrigger>
+                </div>
+                 <div className={cn("flex p-2 items-center w-full", state === 'expanded' ? 'hidden' : 'justify-center')}>
                     <SidebarTrigger className="shrink-0">
                         {state === 'expanded' ? <ChevronLeft /> : <ChevronRight />}
                     </SidebarTrigger>

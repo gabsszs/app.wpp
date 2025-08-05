@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { formatDistanceToNow, toDate } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Search, Settings, LogOut, PlusCircle, ChevronLeft, ChevronRight, Filter, Users } from 'lucide-react';
+import { Search, Settings, LogOut, PlusCircle, ChevronLeft, ChevronRight, Filter, Users, MessageSquareText } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -105,6 +105,9 @@ export function ConversationList({
           <SidebarHeader>
             <div className="flex items-center justify-between p-2">
               <div className="flex items-center gap-2">
+                 <Button variant="ghost" size="icon" className="shrink-0">
+                    <MessageSquareText className="h-5 w-5 text-primary" />
+                </Button>
                 <h2 className="text-lg font-semibold tracking-tight">Conversas</h2>
               </div>
               <div className="flex items-center gap-1">
@@ -121,7 +124,7 @@ export function ConversationList({
                           <p>Contatos</p>
                         </TooltipContent>
                     </Tooltip>
-                    <DialogContent className="max-w-4xl h-[90vh] flex flex-col p-0">
+                    <DialogContent className="max-w-4xl h-[90vh] flex flex-col p-0 overflow-hidden">
                       <div className="p-6 pb-0">
                         <DialogHeader>
                           <div className="flex items-center justify-between">
@@ -304,83 +307,10 @@ export function ConversationList({
       {state === 'collapsed' && (
          <div className="flex flex-col h-full items-center">
             <SidebarHeader className="p-2">
-                <div className="flex flex-col items-center gap-2">
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                           <Dialog>
-                                <DialogTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="shrink-0">
-                                        <Users className="h-5 w-5" />
-                                    </Button>
-                                </DialogTrigger>
-                                 <DialogContent className="max-w-4xl h-[90vh] flex flex-col p-0">
-                                    <div className="p-6 pb-0">
-                                    <DialogHeader>
-                                        <div className="flex items-center justify-between">
-                                            <div className='space-y-1'>
-                                                <DialogTitle className="text-2xl">Contatos</DialogTitle>
-                                                <DialogDescription>
-                                                    Gerencie seus clientes e inicie novas conversas.
-                                                </DialogDescription>
-                                            </div>
-                                            <Button>
-                                                <PlusCircle className="mr-2 h-4 w-4" />
-                                                Adicionar Contato
-                                            </Button>
-                                        </div>
-                                    </DialogHeader>
-                                    </div>
-                                    <div className="flex-1 flex flex-col min-h-0">
-                                        <ContactsView />
-                                    </div>
-                                </DialogContent>
-                           </Dialog>
-                        </TooltipTrigger>
-                        <TooltipContent side="right">
-                        <p>Contatos</p>
-                        </TooltipContent>
-                    </Tooltip>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                           <Dialog open={openNewChatDialog} onOpenChange={setOpenNewChatDialog}>
-                                <DialogTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="shrink-0">
-                                        <PlusCircle className="h-5 w-5" />
-                                    </Button>
-                                </DialogTrigger>
-                                <DialogContent className="sm:max-w-[425px]">
-                                <DialogHeader>
-                                    <DialogTitle>Iniciar Nova Conversa</DialogTitle>
-                                    <DialogDescription>
-                                    Digite o número de telefone para iniciar uma conversa.
-                                    </DialogDescription>
-                                </DialogHeader>
-                                <form onSubmit={handleCreateNewChat}>
-                                    <div className="grid gap-4 py-4">
-                                    <div className="grid grid-cols-4 items-center gap-4">
-                                        <Label htmlFor="phone" className="text-right">
-                                        Telefone
-                                        </Label>
-                                        <Input id="phone" placeholder="Número com código do país" className="col-span-3" required />
-                                    </div>
-                                    <div className="grid grid-cols-4 items-center gap-4">
-                                        <Label htmlFor="name" className="text-right">
-                                        Nome
-                                        </Label>
-                                        <Input id="name" placeholder="Nome do contato (Opcional)" className="col-span-3" />
-                                    </div>
-                                    </div>
-                                    <DialogFooter>
-                                    <Button type="submit">Iniciar Conversa</Button>
-                                    </DialogFooter>
-                                </form>
-                                </DialogContent>
-                            </Dialog>
-                        </TooltipTrigger>
-                        <TooltipContent side="right">
-                        <p>Nova Conversa</p>
-                        </TooltipContent>
-                    </Tooltip>
+                <div className="flex items-center justify-center pt-2">
+                     <Button variant="ghost" size="icon" className="shrink-0">
+                        <MessageSquareText className="h-5 w-5 text-primary" />
+                    </Button>
                 </div>
             </SidebarHeader>
             <Separator />
@@ -408,7 +338,7 @@ export function ConversationList({
                 <div className="flex flex-col p-2 gap-2 items-center w-full">
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="shrink-0">
+                             <Button variant="ghost" size="icon" className="shrink-0">
                                 <Avatar className="h-9 w-9">
                                     <AvatarImage src={loggedInUser.avatarUrl} alt={loggedInUser.name} />
                                     <AvatarFallback>{loggedInUser.name.charAt(0)}</AvatarFallback>
