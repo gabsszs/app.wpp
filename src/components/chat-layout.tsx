@@ -25,6 +25,16 @@ import { Button } from './ui/button';
 import { PlusCircle } from 'lucide-react';
 import { Label } from './ui/label';
 import { Input } from './ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+
 
 interface ChatLayoutProps {
   loggedInUser: User;
@@ -154,21 +164,32 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
                 </DialogHeader>
                 <form onSubmit={handleCreateNewChat}>
                     <div className="grid gap-4 py-4">
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="phone" className="text-right">
-                        Telefone
-                        </Label>
-                        <Input id="phone" placeholder="Número com código do país" className="col-span-3" required />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="name" className="text-right">
-                        Nome
-                        </Label>
-                        <Input id="name" placeholder="Nome do contato (Opcional)" className="col-span-3" />
-                    </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="phone">Telefone</Label>
+                            <div className="flex gap-2">
+                                <Select defaultValue="+55">
+                                <SelectTrigger className="w-[80px]">
+                                    <SelectValue placeholder="DDI" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectGroup>
+                                    <SelectItem value="+55">+55</SelectItem>
+                                    <SelectItem value="+1">+1</SelectItem>
+                                    <SelectItem value="+351">+351</SelectItem>
+                                    <SelectItem value="+44">+44</SelectItem>
+                                    </SelectGroup>
+                                </SelectContent>
+                                </Select>
+                                <Input id="phone" placeholder="DDD + Número" className="flex-1" required />
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="name">Nome (Opcional)</Label>
+                             <Input id="name" placeholder="Nome do contato" />
+                        </div>
                     </div>
                     <DialogFooter>
-                    <Button type="submit">Iniciar Conversa</Button>
+                        <Button type="submit">Iniciar Conversa</Button>
                     </DialogFooter>
                 </form>
             </DialogContent>
