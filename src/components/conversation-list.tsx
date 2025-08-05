@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { formatDistanceToNow, toDate } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Search, Settings, LogOut, PlusCircle, ChevronLeft, ChevronRight, Filter } from 'lucide-react';
+import { Search, Settings, LogOut, PlusCircle, ChevronLeft, ChevronRight, Filter, Users } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -102,49 +102,65 @@ export function ConversationList({
   return (
     <>
       <SidebarHeader>
-        <div className={cn("flex items-center justify-center gap-2", state === 'expanded' && "w-full")}>
-           <Dialog open={openNewChatDialog} onOpenChange={setOpenNewChatDialog}>
-            <Tooltip>
+        <div className={cn("flex items-center justify-between p-2", state === 'collapsed' && "justify-center")}>
+          <div className={cn("flex items-center gap-2", state === 'collapsed' && "hidden")}>
+             <h2 className="text-lg font-semibold tracking-tight">Conversas</h2>
+          </div>
+          <div className="flex items-center gap-1">
+             <Tooltip>
                 <TooltipTrigger asChild>
-                  <DialogTrigger asChild>
-                    <Button variant={state === 'expanded' ? 'default' : 'ghost'} size={state === 'expanded' ? 'sm' : 'icon'} className={cn(state === 'expanded' && "w-full")}>
-                        <PlusCircle />
-                        <span className={cn(state === 'collapsed' && "hidden")}>Nova Conversa</span>
+                    <Button variant="ghost" size="icon" className="shrink-0" asChild>
+                        <Link href="/contacts">
+                            <Users className="h-4 w-4" />
+                        </Link>
                     </Button>
-                  </DialogTrigger>
                 </TooltipTrigger>
-                <TooltipContent side="right" className={cn(state === 'expanded' && 'hidden')}>
-                  <p>Nova Conversa</p>
+                <TooltipContent side="bottom">
+                  <p>Contatos</p>
                 </TooltipContent>
             </Tooltip>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>Iniciar Nova Conversa</DialogTitle>
-                <DialogDescription>
-                  Digite o número de telefone para iniciar uma conversa.
-                </DialogDescription>
-              </DialogHeader>
-              <form onSubmit={handleCreateNewChat}>
-                <div className="grid gap-4 py-4">
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="phone" className="text-right">
-                      Telefone
-                    </Label>
-                    <Input id="phone" placeholder="Número com código do país" className="col-span-3" required />
-                  </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="name" className="text-right">
-                      Nome
-                    </Label>
-                    <Input id="name" placeholder="Nome do contato (Opcional)" className="col-span-3" />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button type="submit">Iniciar Conversa</Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
+            <Dialog open={openNewChatDialog} onOpenChange={setOpenNewChatDialog}>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                    <DialogTrigger asChild>
+                        <Button variant="ghost" size="icon" className="shrink-0">
+                            <PlusCircle className="h-4 w-4" />
+                        </Button>
+                    </DialogTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom">
+                    <p>Nova Conversa</p>
+                    </TooltipContent>
+                </Tooltip>
+                <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                    <DialogTitle>Iniciar Nova Conversa</DialogTitle>
+                    <DialogDescription>
+                    Digite o número de telefone para iniciar uma conversa.
+                    </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleCreateNewChat}>
+                    <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="phone" className="text-right">
+                        Telefone
+                        </Label>
+                        <Input id="phone" placeholder="Número com código do país" className="col-span-3" required />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="name" className="text-right">
+                        Nome
+                        </Label>
+                        <Input id="name" placeholder="Nome do contato (Opcional)" className="col-span-3" />
+                    </div>
+                    </div>
+                    <DialogFooter>
+                    <Button type="submit">Iniciar Conversa</Button>
+                    </DialogFooter>
+                </form>
+                </DialogContent>
+            </Dialog>
+          </div>
         </div>
       
         <div className={cn("flex items-center gap-2 px-2", state === 'collapsed' && "hidden")}>
