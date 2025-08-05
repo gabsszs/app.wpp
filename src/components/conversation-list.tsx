@@ -220,31 +220,44 @@ export function ConversationList({
         <div className={cn("flex flex-col gap-2 w-full")}>
              <Separator />
               <div className={cn("flex items-center p-2", state === 'collapsed' ? 'justify-center' : 'justify-between w-full')}>
-                <Button variant="ghost" className={cn("flex-grow justify-start p-2 h-auto", state === 'collapsed' && "p-0 aspect-square h-10 w-10")} asChild>
-                    <Link href="/settings">
-                        <Avatar className={cn("h-8 w-8", state === 'collapsed' && "h-full w-full")}>
-                        <AvatarImage src={loggedInUser.avatarUrl} alt={loggedInUser.name} />
-                        <AvatarFallback>{loggedInUser.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <div className={cn("flex flex-col items-start flex-grow truncate", state === 'collapsed' && "hidden")}>
-                        <span className="font-semibold text-foreground text-sm truncate">{loggedInUser.name}</span>
-                        <span className="text-xs text-muted-foreground truncate">{loggedInUser.email}</span>
-                        </div>
-                    </Link>
-                </Button>
+                <DropdownMenu>
+                   <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className={cn("flex-grow justify-start p-2 h-auto", state === 'collapsed' && "p-0 aspect-square h-10 w-10")}>
+                            <Avatar className={cn("h-8 w-8", state === 'collapsed' && "h-full w-full")}>
+                                <AvatarImage src={loggedInUser.avatarUrl} alt={loggedInUser.name} />
+                                <AvatarFallback>{loggedInUser.name.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                            <div className={cn("flex flex-col items-start flex-grow truncate", state === 'collapsed' && "hidden")}>
+                                <span className="font-semibold text-foreground text-sm truncate">{loggedInUser.name}</span>
+                                <span className="text-xs text-muted-foreground truncate">{loggedInUser.email}</span>
+                            </div>
+                        </Button>
+                   </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-56 mb-2" side="top" align="start">
+                        <DropdownMenuLabel className="font-normal">
+                          <div className="flex flex-col space-y-1">
+                            <p className="text-sm font-medium leading-none">{loggedInUser.name}</p>
+                            <p className="text-xs leading-none text-muted-foreground">
+                              {loggedInUser.email}
+                            </p>
+                          </div>
+                        </DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem asChild>
+                            <Link href="/settings">
+                                <Settings className="mr-2 h-4 w-4" />
+                                <span>Configurações</span>
+                            </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={handleSignOut}>
+                            <LogOut className="mr-2 h-4 w-4" />
+                            <span>Sair</span>
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
                 
                 <div className={cn("flex items-center", state === 'collapsed' && "hidden")}>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button variant="ghost" size="icon" onClick={handleSignOut}>
-                                <LogOut className="h-5 w-5" />
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent side="right">
-                            <p>Sair</p>
-                        </TooltipContent>
-                    </Tooltip>
-                    
                     <SidebarTrigger className={cn("h-7 w-7 shrink-0")} >
                         <TriggerIcon />
                     </SidebarTrigger>
@@ -255,3 +268,5 @@ export function ConversationList({
     </>
   );
 }
+
+    
