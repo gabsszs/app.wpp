@@ -132,6 +132,7 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
             updatedAt: now,
             lastMessage: null,
             messages: [],
+            tags: [],
         };
         const updatedConversations = [newConvData, ...conversations];
         setConversations(updatedConversations);
@@ -159,7 +160,7 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
   
   const enrichedSelectedConversation = selectedConversation ? {
       ...selectedConversation,
-      messages: messages || [], // Combine conversation data with real-time messages
+      messages: messages as Message[] || [], // Combine conversation data with real-time messages
   } : null;
 
    if (loadingConversations) {

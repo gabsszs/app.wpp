@@ -55,6 +55,7 @@ export async function getConversationsForAgent(agentId: string): Promise<Convers
       updatedAt: data.updatedAt.toDate(),
       clientName: data.clientName || clientData.name || 'Unknown Client',
       clientAvatarUrl: data.clientAvatarUrl || clientData.avatarUrl || 'https://placehold.co/100x100.png',
+      tags: data.tags || [],
       lastMessage: lastMessage ? {
           content: lastMessage.content,
           timestamp: lastMessage.timestamp.toDate(),
@@ -147,6 +148,7 @@ export async function createOrGetConversationByPhone(
     createdAt: timestamp,
     updatedAt: timestamp,
     lastMessage: null,
+    tags: [],
   };
 
   const newConversationDocRef = await addDoc(conversationsRef, newConversationData);

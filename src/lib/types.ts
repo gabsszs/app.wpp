@@ -34,6 +34,7 @@ export interface Conversation {
   clientAvatarUrl: string;
   agentId?: string;
   status: 'open' | 'pending' | 'closed';
+  tags: string[];
   messages: Message[]; // This will likely be a subcollection, not an array in the doc
   createdAt: Timestamp | Date;
   updatedAt: Timestamp | Date;
