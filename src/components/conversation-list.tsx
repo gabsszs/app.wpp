@@ -46,6 +46,7 @@ import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
+import { ContactsView } from './contacts-view';
 
 
 interface ConversationListProps {
@@ -100,23 +101,28 @@ export function ConversationList({
   return (
     <>
       <SidebarHeader>
-        <div className={cn("flex items-center justify-between p-2", state === 'collapsed' && "justify-center")}>
-          <div className={cn("flex items-center gap-2", state === 'collapsed' && "hidden")}>
+        <div className={cn("flex items-center justify-between p-2", state === 'collapsed' && "hidden")}>
+          <div className="flex items-center gap-2">
              <h2 className="text-lg font-semibold tracking-tight">Conversas</h2>
           </div>
           <div className="flex items-center gap-1">
-             <Tooltip>
-                <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" className="shrink-0" asChild>
-                        <Link href="/contacts">
-                            <Users className="h-4 w-4" />
-                        </Link>
-                    </Button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">
-                  <p>Contatos</p>
-                </TooltipContent>
-            </Tooltip>
+             <Dialog>
+                 <Tooltip>
+                    <TooltipTrigger asChild>
+                        <DialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="shrink-0">
+                                <Users className="h-4 w-4" />
+                            </Button>
+                        </DialogTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom">
+                      <p>Contatos</p>
+                    </TooltipContent>
+                </Tooltip>
+                <DialogContent className="max-w-4xl h-[90vh] flex flex-col">
+                   <ContactsView />
+                </DialogContent>
+             </Dialog>
             <Dialog open={openNewChatDialog} onOpenChange={setOpenNewChatDialog}>
                 <Tooltip>
                     <TooltipTrigger asChild>
