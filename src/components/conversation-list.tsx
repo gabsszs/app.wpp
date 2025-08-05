@@ -115,7 +115,7 @@ export function ConversationList({
                     <Tooltip>
                         <TooltipTrigger asChild>
                             <DialogTrigger asChild>
-                                <Button variant="ghost" size="icon" className="shrink-0">
+                                <Button id="contacts-dialog-trigger" variant="ghost" size="icon" className="shrink-0">
                                     <Users className="h-4 w-4" />
                                 </Button>
                             </DialogTrigger>
@@ -150,7 +150,7 @@ export function ConversationList({
                     <Tooltip>
                         <TooltipTrigger asChild>
                         <DialogTrigger asChild>
-                            <Button variant="ghost" size="icon" className="shrink-0">
+                            <Button id="new-chat-dialog-trigger" variant="ghost" size="icon" className="shrink-0">
                                 <PlusCircle className="h-4 w-4" />
                             </Button>
                         </DialogTrigger>
@@ -333,9 +333,8 @@ export function ConversationList({
                     ))}
                 </SidebarMenu>
             </SidebarContent>
-            <SidebarFooter className="w-full">
-                <Separator />
-                <div className="flex flex-col p-2 gap-2 items-center w-full">
+            <SidebarFooter className="w-full mt-auto">
+                <div className="flex p-2 flex-col gap-2 items-center w-full">
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                              <Button variant="ghost" size="icon" className="shrink-0">

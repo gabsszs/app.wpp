@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Sparkles, Phone, Video, Info, Paperclip, Image, FileText, MapPin, ChevronLeft, Calendar as CalendarIcon, Clock, LoaderCircle } from 'lucide-react';
+import { Send, Sparkles, Phone, Video, Info, Paperclip, Image, FileText, MapPin, ChevronLeft, Calendar as CalendarIcon, Clock, LoaderCircle, MessageSquarePlus, Users } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -25,15 +25,17 @@ import { format, isToday, isYesterday, differenceInCalendarDays, toDate } from '
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { Skeleton } from './ui/skeleton';
+import { Dialog, DialogTrigger } from './ui/dialog';
 
 interface ChatViewProps {
   conversation: (Conversation & { messages: Message[] }) | null;
+  conversations: Conversation[];
   loggedInUser: User;
   onSendMessage: (conversationId: string, messageContent: string) => void;
   isLoadingMessages: boolean;
 }
 
-export function ChatView({ conversation, loggedInUser, onSendMessage, isLoadingMessages }: ChatViewProps) {
+export function ChatView({ conversation, conversations, loggedInUser, onSendMessage, isLoadingMessages }: ChatViewProps) {
   const [message, setMessage] = useState('');
   const [isSuggesting, setIsSuggesting] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
@@ -105,7 +107,43 @@ export function ChatView({ conversation, loggedInUser, onSendMessage, isLoadingM
     return format(date, "PPP", { locale: ptBR });
   };
 
+  // State for the empty chat screen.
+  // We get the dialog triggers from the ConversationList component context,
+  // this is a bit of a hack but avoids prop drilling or context hell.
+  const getDialogTrigger = (dialogId: string) => {
+    if (typeof window === 'undefined') return null;
+    return document.getElementById(dialogId) as HTMLButtonElement | null;
+  }
+  
+  const openContactsDialog = () => getDialogTrigger('contacts-dialog-trigger')?.click();
+  const openNewChatDialog = () => getDialogTrigger('new-chat-dialog-trigger')?.click();
+
+
   if (!conversation) {
+     if (conversations.length === 0) {
+      return (
+        <div className="flex h-full flex-col items-center justify-center bg-muted/30 p-8">
+            <div className="text-center max-w-sm">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+                    <MessageSquarePlus className="h-8 w-8 text-primary" />
+                </div>
+                <h2 className="text-2xl font-bold tracking-tight">Nenhum chat por aqui ainda</h2>
+                <p className="mt-2 text-muted-foreground">
+                    Inicie uma nova conversa com um de seus contatos ou adicione um novo número de telefone.
+                </p>
+                <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
+                    <Button onClick={openContactsDialog}>
+                        <Users className="mr-2 h-4 w-4" />
+                        Ver Contatos
+                    </Button>
+                     <Button variant="outline" onClick={openNewChatDialog}>
+                        Iniciar Nova Conversa
+                    </Button>
+                </div>
+            </div>
+        </div>
+      );
+    }
     return (
       <div className="flex h-full items-center justify-center bg-muted/30">
         <div className="text-center">

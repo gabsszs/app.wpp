@@ -40,6 +40,13 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
     if (conversations && conversations.length > 0 && !selectedConversation) {
       setSelectedConversation(conversations[0] as Conversation);
     }
+     // If the selected conversation is deleted, or the list becomes empty, reset selection.
+    if (conversations && selectedConversation && !conversations.find(c => c.id === selectedConversation.id)) {
+        setSelectedConversation(conversations.length > 0 ? (conversations[0] as Conversation) : null);
+    }
+    if (conversations && conversations.length === 0) {
+        setSelectedConversation(null);
+    }
   }, [conversations, selectedConversation]);
 
   const handleSendMessage = async (conversationId: string, messageContent: string) => {
@@ -84,12 +91,14 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
      );
    }
 
+  const allConversations = (conversations as Conversation[]) || [];
+
   return (
     <SidebarProvider defaultOpen>
       <div className="flex h-screen w-full">
         <Sidebar className="h-full" collapsible="icon">
           <ConversationList
-            conversations={(conversations as Conversation[]) || []}
+            conversations={allConversations}
             selectedConversation={selectedConversation}
             onSelectConversation={handleSelectConversation}
             loggedInUser={loggedInUser}
@@ -98,6 +107,7 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
         <SidebarInset className="flex-1 relative">
           <ChatView
             conversation={enrichedSelectedConversation}
+            conversations={allConversations}
             loggedInUser={loggedInUser}
             onSendMessage={handleSendMessage}
             isLoadingMessages={loadingMessages}
