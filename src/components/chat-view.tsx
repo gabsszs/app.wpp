@@ -20,7 +20,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { format, isToday, isYesterday, differenceInCalendarDays, toDate } from 'date-fns';
@@ -45,7 +44,7 @@ export function ChatView({ conversation, conversations, loggedInUser, onSendMess
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const { toast } = useToast();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const [activeTab, setActiveTab] = useState<MessageType>('message');
+  const [inputType, setInputType] = useState<MessageType>('message');
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -58,8 +57,9 @@ export function ChatView({ conversation, conversations, loggedInUser, onSendMess
   
   const handleSend = () => {
     if (message.trim() && conversation) {
-      onSendMessage(conversation.id, message, activeTab);
+      onSendMessage(conversation.id, message, inputType);
       setMessage('');
+      setInputType('message'); // Reset to message type after sending
     }
   };
 
@@ -76,10 +76,10 @@ export function ChatView({ conversation, conversations, loggedInUser, onSendMess
     };
 
     setIsSuggesting(true);
+    setInputType('message'); // Ensure we are in message mode for suggestions
     try {
       const result = await getSuggestedResponse({ customerMessage: lastCustomerMessage.content });
       setMessage(result.suggestedResponse);
-      setActiveTab('message'); // Switch to message tab when suggestion is applied
     } catch (error) {
       console.error('Error getting suggestion:', error);
       toast({
@@ -112,6 +112,10 @@ export function ChatView({ conversation, conversations, loggedInUser, onSendMess
 
     return format(date, "PPP", { locale: ptBR });
   };
+  
+  const toggleInputType = () => {
+    setInputType(prev => prev === 'message' ? 'note' : 'message');
+  }
 
   if (!conversation) {
      if (conversations.length === 0) {
@@ -232,27 +236,14 @@ export function ChatView({ conversation, conversations, loggedInUser, onSendMess
       </ScrollArea>
 
       <footer className="border-t bg-background p-4">
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as MessageType)} className="w-full">
           <Card className={cn(
             "rounded-2xl transition-all duration-300",
-            activeTab === 'note' && "bg-amber-50"
+            inputType === 'note' && "bg-amber-50"
             )}>
             <CardContent className="p-2">
               <div className="grid gap-2">
-                <TabsList className="grid w-full grid-cols-2 h-auto bg-transparent p-0">
-                  <TabsTrigger value="message" className="data-[state=active]:bg-muted/80 data-[state=active]:shadow-none rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <Send className="h-4 w-4" /> Mensagem
-                    </div>
-                  </TabsTrigger>
-                  <TabsTrigger value="note" className="data-[state=active]:bg-amber-200 data-[state=active]:text-amber-900 data-[state=active]:shadow-none rounded-lg">
-                     <div className="flex items-center gap-2">
-                        <StickyNote className="h-4 w-4" /> Nota Interna
-                     </div>
-                  </TabsTrigger>
-                </TabsList>
                 <Textarea
-                  placeholder={activeTab === 'message' ? "Digite sua mensagem..." : "Digite uma nota interna..."}
+                  placeholder={inputType === 'message' ? "Digite sua mensagem..." : "Digite uma nota interna..."}
                   className="resize-none border-0 shadow-none focus-visible:ring-0 bg-transparent"
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
@@ -264,20 +255,29 @@ export function ChatView({ conversation, conversations, loggedInUser, onSendMess
                   }}
                 />
                 <div className="flex items-center">
-                  {activeTab === 'message' && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleSuggestion}
-                      disabled={isSuggesting}
-                      className="gap-2 text-accent-foreground hover:text-accent-foreground"
-                    >
-                      <Sparkles className="h-4 w-4 text-accent" />
-                      {isSuggesting ? 'Gerando...' : 'Sugerir Resposta com IA'}
-                    </Button>
-                  )}
+                  <div className="flex items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleSuggestion}
+                        disabled={isSuggesting}
+                        className="gap-2 text-primary hover:text-primary"
+                      >
+                        <Sparkles className="h-4 w-4" />
+                        {isSuggesting ? 'Gerando...' : 'Sugerir'}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={toggleInputType}
+                        className={cn(inputType === 'note' && 'bg-amber-200 text-amber-900 hover:bg-amber-300 hover:text-amber-900')}
+                      >
+                        <StickyNote className="h-4 w-4" />
+                      </Button>
+                  </div>
+
                   <div className="ml-auto flex items-center gap-2">
-                    {activeTab === 'message' && (
+                    {inputType === 'message' && (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon">
@@ -304,7 +304,7 @@ export function ChatView({ conversation, conversations, loggedInUser, onSendMess
                       onClick={handleSend} 
                       size="icon" 
                       disabled={!message.trim()}
-                      className={cn(activeTab === 'note' && "bg-amber-500 hover:bg-amber-600 text-white")}
+                      className={cn(inputType === 'note' && "bg-amber-500 hover:bg-amber-600 text-white")}
                     >
                       <Send className="h-5 w-5" />
                     </Button>
@@ -313,7 +313,6 @@ export function ChatView({ conversation, conversations, loggedInUser, onSendMess
               </div>
             </CardContent>
           </Card>
-        </Tabs>
       </footer>
     </div>
   );
