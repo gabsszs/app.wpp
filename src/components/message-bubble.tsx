@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Check, CheckCheck, Clock } from 'lucide-react';
+import { Check, CheckCheck, Clock, StickyNote } from 'lucide-react';
 import { format, toDate } from 'date-fns';
 import { cn } from '@/lib/utils';
 import type { Message, MessageStatus, User } from '@/lib/types';
@@ -34,6 +34,25 @@ export function MessageBubble({ message, loggedInUserId }: MessageBubbleProps) {
     return toDate(timestamp || new Date());
   }
   
+  if(message.type === 'note') {
+    return (
+        <div className="flex items-center justify-center my-2">
+            <div className="flex items-start gap-3 rounded-lg bg-amber-100 border border-amber-200 text-amber-900 px-4 py-3 max-w-xl mx-auto shadow-sm">
+                <StickyNote className="h-5 w-5 mt-1 flex-shrink-0" />
+                <div className="flex-grow">
+                    <p className="text-sm font-semibold">Nota Interna</p>
+                    <p className="whitespace-pre-wrap break-words text-sm">{message.content}</p>
+                     <div className="mt-1 flex items-center justify-end gap-2 self-end">
+                        <span className="text-xs opacity-70">
+                            {format(formatTimestamp(message.timestamp), 'HH:mm')}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+  }
+
   return (
     <div
       className={cn('flex flex-col', {

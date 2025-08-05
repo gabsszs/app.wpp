@@ -14,7 +14,7 @@ import {
   updateDoc
 } from 'firebase/firestore';
 import { db } from './firebase';
-import type { Message, Conversation, User } from './types';
+import type { Message, Conversation, User, MessageType } from './types';
 import { toDate } from 'date-fns';
 
 // NOTE: In a real-world scenario, you would have more robust user fetching.
@@ -42,7 +42,7 @@ export async function getConversationsForAgent(agentId: string): Promise<Convers
 
     // Fetch last message for preview
     const messagesCol = collection(db, 'conversations', docSnap.id, 'messages');
-    const lastMessageQuery = query(messagesCol, orderBy('timestamp', 'desc'), limit(1));
+    const lastMessageQuery = query(messagesCol, where('type', '==', 'message'), orderBy('timestamp', 'desc'), limit(1));
     const lastMessageSnapshot = await getDocs(lastMessageQuery);
     const lastMessage = lastMessageSnapshot.docs[0]?.data() || null;
 
@@ -67,7 +67,7 @@ export async function getConversationsForAgent(agentId: string): Promise<Convers
   return conversations;
 }
 
-export async function sendMessage(conversationId: string, senderId: string, content: string): Promise<void> {
+export async function sendMessage(conversationId: string, senderId: string, content: string, type: MessageType): Promise<void> {
     const conversationRef = doc(db, 'conversations', conversationId);
     const messagesRef = collection(conversationRef, 'messages');
 
@@ -81,16 +81,20 @@ export async function sendMessage(conversationId: string, senderId: string, cont
         senderId,
         timestamp,
         status: 'sent',
+        type: type
     });
     
-    batch.update(conversationRef, {
-        updatedAt: timestamp,
-        lastMessage: {
-            content,
-            senderId,
-            timestamp
-        }
-    });
+    // Only update conversation's lastMessage if it's a regular message
+    if (type === 'message') {
+      batch.update(conversationRef, {
+          updatedAt: timestamp,
+          lastMessage: {
+              content,
+              senderId,
+              timestamp
+          }
+      });
+    }
 
     await batch.commit();
 }

@@ -15,6 +15,7 @@ export interface User {
 }
 
 export type MessageStatus = 'sending' | 'sent' | 'delivered' | 'read';
+export type MessageType = 'message' | 'note';
 
 export interface Message {
   id: string;
@@ -23,6 +24,7 @@ export interface Message {
   content: string;
   timestamp: Timestamp | Date; // Use Firebase Timestamp
   status: MessageStatus;
+  type: MessageType;
 }
 
 export interface Conversation {

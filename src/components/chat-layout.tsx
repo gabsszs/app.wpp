@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import type { Conversation, User } from '@/lib/types';
+import type { Conversation, User, MessageType } from '@/lib/types';
 import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar';
 import { ConversationList } from './conversation-list';
 import { ChatView } from './chat-view';
@@ -71,7 +71,7 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
         const convs = await getConversationsForAgent(loggedInUser.id);
         setConversations(convs);
         if (convs.length > 0 && !selectedConversation) {
-          setSelectedConversation(convs[0]);
+          // Do not auto-select a conversation
         }
       } catch (error) {
         console.error("Error fetching conversations:", error);
@@ -82,13 +82,13 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
     };
 
     fetchConversations();
-  }, [loggedInUser.id]);
+  }, [loggedInUser.id, toast]);
 
 
-  const handleSendMessage = async (conversationId: string, messageContent: string) => {
+  const handleSendMessage = async (conversationId: string, messageContent: string, type: MessageType) => {
     if (!loggedInUser) return;
     try {
-      await sendMessage(conversationId, loggedInUser.id, messageContent);
+      await sendMessage(conversationId, loggedInUser.id, messageContent, type);
     } catch (error) {
         console.error("Error sending message:", error);
         // Optionally show a toast to the user

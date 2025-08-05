@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Sparkles, Phone, Video, Info, Paperclip, Image, FileText, MapPin, ChevronLeft, Calendar as CalendarIcon, Clock, LoaderCircle, MessageSquarePlus, Users } from 'lucide-react';
+import { Send, Sparkles, Phone, Video, Info, Paperclip, Image, FileText, MapPin, ChevronLeft, Calendar as CalendarIcon, Clock, LoaderCircle, MessageSquarePlus, Users, StickyNote } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -11,7 +11,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { MessageBubble } from './message-bubble';
-import type { Conversation, User, Message } from '@/lib/types';
+import type { Conversation, User, Message, MessageType } from '@/lib/types';
 import { getSuggestedResponse } from '@/ai/flows/suggested-response';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -20,6 +20,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { format, isToday, isYesterday, differenceInCalendarDays, toDate } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -31,7 +33,7 @@ interface ChatViewProps {
   conversation: (Conversation & { messages: Message[] }) | null;
   conversations: Conversation[];
   loggedInUser: User;
-  onSendMessage: (conversationId: string, messageContent: string) => void;
+  onSendMessage: (conversationId: string, messageContent: string, type: MessageType) => void;
   isLoadingMessages: boolean;
   onOpenContacts: () => void;
   onOpenNewChat: () => void;
@@ -43,6 +45,7 @@ export function ChatView({ conversation, conversations, loggedInUser, onSendMess
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const { toast } = useToast();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const [activeTab, setActiveTab] = useState<MessageType>('message');
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -55,14 +58,14 @@ export function ChatView({ conversation, conversations, loggedInUser, onSendMess
   
   const handleSend = () => {
     if (message.trim() && conversation) {
-      onSendMessage(conversation.id, message);
+      onSendMessage(conversation.id, message, activeTab);
       setMessage('');
     }
   };
 
   const handleSuggestion = async () => {
     if (!conversation || conversation.messages.length === 0) return;
-    const lastCustomerMessage = [...conversation.messages].reverse().find(m => m.senderId !== loggedInUser.id);
+    const lastCustomerMessage = [...conversation.messages].reverse().find(m => m.type === 'message' && m.senderId !== loggedInUser.id);
     if (!lastCustomerMessage) {
        toast({
         title: "Nenhuma mensagem do cliente",
@@ -76,6 +79,7 @@ export function ChatView({ conversation, conversations, loggedInUser, onSendMess
     try {
       const result = await getSuggestedResponse({ customerMessage: lastCustomerMessage.content });
       setMessage(result.suggestedResponse);
+      setActiveTab('message'); // Switch to message tab when suggestion is applied
     } catch (error) {
       console.error('Error getting suggestion:', error);
       toast({
@@ -228,62 +232,88 @@ export function ChatView({ conversation, conversations, loggedInUser, onSendMess
       </ScrollArea>
 
       <footer className="border-t bg-background p-4">
-        <Card className="rounded-2xl">
-          <CardContent className="p-2">
-            <div className="grid gap-2">
-              <Textarea
-                placeholder="Digite sua mensagem..."
-                className="resize-none border-0 shadow-none focus-visible:ring-0"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSend();
-                  }
-                }}
-              />
-              <div className="flex items-center">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleSuggestion}
-                  disabled={isSuggesting}
-                  className="gap-2 text-accent-foreground hover:text-accent-foreground"
-                >
-                  <Sparkles className="h-4 w-4 text-accent" />
-                  {isSuggesting ? 'Gerando...' : 'Sugerir Resposta com IA'}
-                </Button>
-                <div className="ml-auto flex items-center gap-2">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <Paperclip className="h-5 w-5" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem>
-                        <Image className="mr-2 h-4 w-4" />
-                        <span>Fotos e Vídeos</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <FileText className="mr-2 h-4 w-4" />
-                        <span>Documento</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <MapPin className="mr-2 h-4 w-4" />
-                        <span>Localização</span>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                  <Button onClick={handleSend} size="icon" disabled={!message.trim()}>
-                    <Send className="h-5 w-5" />
-                  </Button>
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as MessageType)} className="w-full">
+          <Card className={cn(
+            "rounded-2xl transition-all duration-300",
+            activeTab === 'note' && "bg-amber-50"
+            )}>
+            <CardContent className="p-2">
+              <div className="grid gap-2">
+                <TabsList className="grid w-full grid-cols-2 h-auto bg-transparent p-0">
+                  <TabsTrigger value="message" className="data-[state=active]:bg-muted/80 data-[state=active]:shadow-none rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <Send className="h-4 w-4" /> Mensagem
+                    </div>
+                  </TabsTrigger>
+                  <TabsTrigger value="note" className="data-[state=active]:bg-amber-200 data-[state=active]:text-amber-900 data-[state=active]:shadow-none rounded-lg">
+                     <div className="flex items-center gap-2">
+                        <StickyNote className="h-4 w-4" /> Nota Interna
+                     </div>
+                  </TabsTrigger>
+                </TabsList>
+                <Textarea
+                  placeholder={activeTab === 'message' ? "Digite sua mensagem..." : "Digite uma nota interna..."}
+                  className="resize-none border-0 shadow-none focus-visible:ring-0 bg-transparent"
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSend();
+                    }
+                  }}
+                />
+                <div className="flex items-center">
+                  {activeTab === 'message' && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleSuggestion}
+                      disabled={isSuggesting}
+                      className="gap-2 text-accent-foreground hover:text-accent-foreground"
+                    >
+                      <Sparkles className="h-4 w-4 text-accent" />
+                      {isSuggesting ? 'Gerando...' : 'Sugerir Resposta com IA'}
+                    </Button>
+                  )}
+                  <div className="ml-auto flex items-center gap-2">
+                    {activeTab === 'message' && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <Paperclip className="h-5 w-5" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem>
+                            <Image className="mr-2 h-4 w-4" />
+                            <span>Fotos e Vídeos</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <FileText className="mr-2 h-4 w-4" />
+                            <span>Documento</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <MapPin className="mr-2 h-4 w-4" />
+                            <span>Localização</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
+                    <Button 
+                      onClick={handleSend} 
+                      size="icon" 
+                      disabled={!message.trim()}
+                      className={cn(activeTab === 'note' && "bg-amber-500 hover:bg-amber-600 text-white")}
+                    >
+                      <Send className="h-5 w-5" />
+                    </Button>
+                  </div>
                 </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </Tabs>
       </footer>
     </div>
   );
