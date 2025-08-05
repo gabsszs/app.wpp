@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { formatDistanceToNow, toDate } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Search, User, Users, Settings, FileText, LogOut, PlusCircle, ChevronLeft, ChevronRight, Filter } from 'lucide-react';
+import { Search, Settings, LogOut, PlusCircle, ChevronLeft, ChevronRight, Filter } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -102,84 +102,70 @@ export function ConversationList({
   return (
     <>
       <SidebarHeader>
-        <div className={cn("flex flex-col gap-2", state === 'collapsed' && "items-center")}>
-          <div className={cn("flex items-center gap-1", state === 'collapsed' && "flex-col")}>
-             <Dialog open={openNewChatDialog} onOpenChange={setOpenNewChatDialog}>
-              <Tooltip>
-                  <TooltipTrigger asChild>
-                    <DialogTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                          <PlusCircle className="h-5 w-5" />
-                      </Button>
-                    </DialogTrigger>
-                  </TooltipTrigger>
-                  <TooltipContent side="right" className={cn(state === 'expanded' && 'hidden')}>
-                    <p>Nova Conversa</p>
-                  </TooltipContent>
-              </Tooltip>
-              <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>Iniciar Nova Conversa</DialogTitle>
-                  <DialogDescription>
-                    Digite o número de telefone para iniciar uma conversa.
-                  </DialogDescription>
-                </DialogHeader>
-                <form onSubmit={handleCreateNewChat}>
-                  <div className="grid gap-4 py-4">
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="phone" className="text-right">
-                        Telefone
-                      </Label>
-                      <Input id="phone" placeholder="Número com código do país" className="col-span-3" required />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="name" className="text-right">
-                        Nome
-                      </Label>
-                      <Input id="name" placeholder="Nome do contato (Opcional)" className="col-span-3" />
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <Button type="submit">Iniciar Conversa</Button>
-                  </DialogFooter>
-                </form>
-              </DialogContent>
-            </Dialog>
-
+        <div className={cn("flex items-center justify-center gap-2", state === 'expanded' && "w-full")}>
+           <Dialog open={openNewChatDialog} onOpenChange={setOpenNewChatDialog}>
             <Tooltip>
-              <TooltipTrigger asChild>
-                <Link href="/contacts" passHref>
-                    <Button variant="ghost" size="icon">
-                      <User className="h-5 w-5" />
+                <TooltipTrigger asChild>
+                  <DialogTrigger asChild>
+                    <Button variant={state === 'expanded' ? 'default' : 'ghost'} size={state === 'expanded' ? 'sm' : 'icon'} className={cn(state === 'expanded' && "w-full")}>
+                        <PlusCircle />
+                        <span className={cn(state === 'collapsed' && "hidden")}>Nova Conversa</span>
                     </Button>
-                </Link>
-              </TooltipTrigger>
-               <TooltipContent side="right" className={cn(state === 'expanded' && 'hidden')}>
-                  <p>Contatos</p>
+                  </DialogTrigger>
+                </TooltipTrigger>
+                <TooltipContent side="right" className={cn(state === 'expanded' && 'hidden')}>
+                  <p>Nova Conversa</p>
                 </TooltipContent>
             </Tooltip>
-          </div>
-        
-          <div className={cn("flex items-center gap-2", state === 'collapsed' && "hidden")}>
-              <div className="relative flex-grow">
-                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input placeholder="Buscar conversas..." className="pl-8" />
-              </div>
-              <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="shrink-0">
-                          <Filter className="h-4 w-4" />
-                      </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Filtrar por</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem>Data</DropdownMenuItem>
-                      <DropdownMenuItem>Não respondida</DropdownMenuItem>
-                      <DropdownMenuItem>Grupo</DropdownMenuItem>
-                  </DropdownMenuContent>
-              </DropdownMenu>
-          </div>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Iniciar Nova Conversa</DialogTitle>
+                <DialogDescription>
+                  Digite o número de telefone para iniciar uma conversa.
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={handleCreateNewChat}>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="phone" className="text-right">
+                      Telefone
+                    </Label>
+                    <Input id="phone" placeholder="Número com código do país" className="col-span-3" required />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="name" className="text-right">
+                      Nome
+                    </Label>
+                    <Input id="name" placeholder="Nome do contato (Opcional)" className="col-span-3" />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button type="submit">Iniciar Conversa</Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
+      
+        <div className={cn("flex items-center gap-2 px-2", state === 'collapsed' && "hidden")}>
+            <div className="relative flex-grow">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input placeholder="Buscar conversas..." className="pl-8" />
+            </div>
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="shrink-0">
+                        <Filter className="h-4 w-4" />
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Filtrar por</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem>Data</DropdownMenuItem>
+                    <DropdownMenuItem>Não respondida</DropdownMenuItem>
+                    <DropdownMenuItem>Grupo</DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
         </div>
       </SidebarHeader>
       <Separator />
@@ -234,47 +220,35 @@ export function ConversationList({
         <div className={cn("flex flex-col gap-2 w-full")}>
              <Separator />
               <div className={cn("flex items-center p-2", state === 'collapsed' ? 'justify-center' : 'justify-between w-full')}>
-                <div className={cn("flex-grow", state === 'collapsed' && "hidden")}>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="flex items-center gap-3 w-full justify-start p-2 h-auto">
-                          <Avatar className="h-8 w-8">
-                            <AvatarImage src={loggedInUser.avatarUrl} alt={loggedInUser.name} />
-                            <AvatarFallback>{loggedInUser.name.charAt(0)}</AvatarFallback>
-                          </Avatar>
-                        <div className="flex flex-col items-start flex-grow truncate">
-                          <span className="font-semibold text-foreground text-sm truncate">{loggedInUser.name}</span>
-                          <span className="text-xs text-muted-foreground truncate">{loggedInUser.email}</span>
+                <Button variant="ghost" className={cn("flex-grow justify-start p-2 h-auto", state === 'collapsed' && "p-0 aspect-square h-10 w-10")} asChild>
+                    <Link href="/settings">
+                        <Avatar className={cn("h-8 w-8", state === 'collapsed' && "h-full w-full")}>
+                        <AvatarImage src={loggedInUser.avatarUrl} alt={loggedInUser.name} />
+                        <AvatarFallback>{loggedInUser.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <div className={cn("flex flex-col items-start flex-grow truncate", state === 'collapsed' && "hidden")}>
+                        <span className="font-semibold text-foreground text-sm truncate">{loggedInUser.name}</span>
+                        <span className="text-xs text-muted-foreground truncate">{loggedInUser.email}</span>
                         </div>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-64 mb-2" align="end" sideOffset={10}>
-                      <DropdownMenuLabel className="font-normal">
-                        <div className="flex flex-col space-y-1">
-                          <p className="text-sm font-medium leading-none">{loggedInUser.company}</p>
-                          <p className="text-xs leading-none text-muted-foreground">
-                            {loggedInUser.role}
-                          </p>
-                        </div>
-                      </DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem asChild>
-                        <Link href="/settings">
-                            <Settings className="mr-2 h-4 w-4" />
-                            <span>Configurações</span>
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={handleSignOut}>
-                        <LogOut className="mr-2 h-4 w-4" />
-                        <span>Sair</span>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                    </Link>
+                </Button>
+                
+                <div className={cn("flex items-center", state === 'collapsed' && "hidden")}>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="ghost" size="icon" onClick={handleSignOut}>
+                                <LogOut className="h-5 w-5" />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="right">
+                            <p>Sair</p>
+                        </TooltipContent>
+                    </Tooltip>
+                    
+                    <SidebarTrigger className={cn("h-7 w-7 shrink-0")} >
+                        <TriggerIcon />
+                    </SidebarTrigger>
                 </div>
-                <SidebarTrigger className={cn("h-7 w-7 shrink-0", state === 'expanded' && 'hidden md:flex')} >
-                   <TriggerIcon />
-                </SidebarTrigger>
               </div>
         </div>
       </SidebarFooter>
