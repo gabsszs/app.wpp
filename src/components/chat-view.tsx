@@ -48,6 +48,12 @@ export function ChatView({ conversation, conversations, loggedInUser, onSendMess
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [inputType, setInputType] = useState<MessageType>('message');
 
+  // Reset message and input type when conversation changes
+  useEffect(() => {
+    setMessage('');
+    setInputType('message');
+  }, [conversation]);
+
   useEffect(() => {
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTo({
