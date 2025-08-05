@@ -90,23 +90,11 @@ export function ConversationList({
     setOpenNewChatDialog(false);
   }
 
-  const TriggerIcon = state === 'collapsed' ? ChevronRight : ChevronLeft;
-
   const formatTimestamp = (timestamp: any): Date => {
     if (timestamp && typeof timestamp.toDate === 'function') {
       return timestamp.toDate();
     }
     return toDate(timestamp || new Date());
-  }
-
-  if (state === 'collapsed') {
-    return (
-        <div className="flex h-full items-center justify-center">
-             <SidebarTrigger className="h-10 w-10">
-                <TriggerIcon />
-            </SidebarTrigger>
-        </div>
-    )
   }
 
   return (
@@ -285,7 +273,7 @@ export function ConversationList({
                 
                 <div className={cn("flex items-center", state === 'collapsed' && "hidden")}>
                     <SidebarTrigger className={cn("h-7 w-7 shrink-0")} >
-                        <TriggerIcon />
+                        <ChevronLeft />
                     </SidebarTrigger>
                 </div>
               </div>

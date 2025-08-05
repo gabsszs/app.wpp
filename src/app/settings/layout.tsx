@@ -76,18 +76,6 @@ function SettingsSidebarContent() {
         }
     };
     
-    const TriggerIcon = state === 'collapsed' ? ChevronRight : ChevronLeft;
-
-    if (state === 'collapsed') {
-      return (
-        <div className="flex h-full flex-col items-center justify-center">
-            <SidebarTrigger className="h-10 w-10">
-                <TriggerIcon />
-            </SidebarTrigger>
-        </div>
-      );
-    }
-
     return (
         <>
             <SidebarHeader>
