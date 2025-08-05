@@ -30,10 +30,8 @@ export default function LoginPage() {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      toast({
-        title: 'Login bem-sucedido!',
-        description: 'Você será redirecionado para a plataforma.',
-      });
+      // The redirection is now handled by the useAuthState hook in the chat page
+      // so we just need to push to the main page.
       router.push('/chat');
     } catch (error: any) {
        let errorMessage = 'Ocorreu um erro desconhecido.';

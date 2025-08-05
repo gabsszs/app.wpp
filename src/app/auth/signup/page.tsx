@@ -15,7 +15,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from 'firebase/auth';
 
 export default function SignupPage() {
   const [name, setName] = useState('');
@@ -32,10 +32,12 @@ export default function SignupPage() {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(userCredential.user, { displayName: name });
+      await sendEmailVerification(userCredential.user);
       
       toast({
-        title: 'Cadastro realizado com sucesso!',
-        description: 'Você será redirecionado para a tela de login.',
+        title: 'Cadastro quase completo!',
+        description: 'Enviamos um e-mail de verificação. Por favor, confirme seu e-mail antes de fazer login.',
+        duration: 8000,
       });
       router.push('/auth/login');
 

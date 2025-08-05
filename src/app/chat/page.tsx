@@ -7,18 +7,48 @@ import ChatLayout from '@/components/chat-layout';
 import { conversations, users } from '@/lib/mock-data';
 import type { User } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
+import { signOut } from 'firebase/auth';
+import { useToast } from '@/hooks/use-toast';
 
 export default function ChatPage() {
-  const [user, loading] = useAuthState(auth);
+  const [user, loading, error] = useAuthState(auth);
   const router = useRouter();
+  const { toast } = useToast();
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.push('/auth/login');
+    if (loading) {
+      // Still loading, do nothing
+      return;
     }
-  }, [user, loading, router]);
+    if (error) {
+      console.error('Firebase Auth Error:', error);
+      // Optional: Show a toast on error
+      toast({ title: 'Erro de Autenticação', description: 'Ocorreu um problema.', variant: 'destructive'});
+      router.push('/auth/login');
+      return;
+    }
+    if (!user) {
+      // User is not signed in
+      router.push('/auth/login');
+      return;
+    }
+    if (!user.emailVerified) {
+      // User is signed in but email is not verified
+      toast({
+        title: 'Verificação de E-mail Necessária',
+        description: 'Por favor, verifique seu e-mail para acessar a plataforma. Um novo e-mail de verificação foi enviado caso não o encontre.',
+        variant: 'destructive',
+        duration: 9000
+      });
+      // Optionally, resend verification email here if desired
+      signOut(auth); // Sign out the user
+      router.push('/auth/login');
+      return;
+    }
 
-  if (loading) {
+  }, [user, loading, router, error, toast]);
+
+  if (loading || !user || !user.emailVerified) {
     return (
        <div className="flex h-screen w-full items-center justify-center">
         <div className="w-full max-w-md space-y-4 p-4">
@@ -28,10 +58,6 @@ export default function ChatPage() {
         </div>
       </div>
     );
-  }
-
-  if (!user) {
-    return null;
   }
   
   // This is a placeholder. In a real app, you would fetch user data from your database
