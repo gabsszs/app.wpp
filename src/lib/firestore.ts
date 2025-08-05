@@ -108,3 +108,42 @@ export async function markMessagesAsRead(conversationId: string, userId: string)
 
     await batch.commit();
 }
+
+
+export async function createOrGetConversationByPhone(
+  agentId: string,
+  clientPhone: string,
+  clientName?: string
+): Promise<string> {
+  const conversationsRef = collection(db, 'conversations');
+
+  // Use the phone number as a unique ID for the client in this context.
+  const q = query(
+    conversationsRef,
+    where('agentId', '==', agentId),
+    where('clientId', '==', clientPhone)
+  );
+
+  const existingConvsSnapshot = await getDocs(q);
+
+  if (!existingConvsSnapshot.empty) {
+    // If conversation already exists, return its ID
+    return existingConvsSnapshot.docs[0].id;
+  }
+
+  // If it doesn't exist, create a new one
+  const timestamp = serverTimestamp();
+  const newConversationData = {
+    agentId,
+    clientId: clientPhone, // Using phone as the client's unique identifier
+    clientName: clientName || clientPhone, // Use name if provided, otherwise phone
+    clientAvatarUrl: `https://placehold.co/100x100.png`,
+    status: 'open' as const,
+    createdAt: timestamp,
+    updatedAt: timestamp,
+    lastMessage: null,
+  };
+
+  const newConversationDocRef = await addDoc(conversationsRef, newConversationData);
+  return newConversationDocRef.id;
+}

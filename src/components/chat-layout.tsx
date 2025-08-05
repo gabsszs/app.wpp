@@ -6,7 +6,7 @@ import type { Conversation, User } from '@/lib/types';
 import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar';
 import { ConversationList } from './conversation-list';
 import { ChatView } from './chat-view';
-import { sendMessage, markMessagesAsRead } from '@/lib/firestore';
+import { sendMessage, markMessagesAsRead, createOrGetConversationByPhone } from '@/lib/firestore';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
 import { collection, query, where, orderBy, doc, collectionGroup } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -34,6 +34,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { useToast } from '@/hooks/use-toast';
 
 
 interface ChatLayoutProps {
@@ -44,6 +45,14 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [isContactsDialogOpen, setIsContactsDialogOpen] = useState(false);
   const [isNewChatDialogOpen, setIsNewChatDialogOpen] = useState(false);
+  const { toast } = useToast();
+
+  // State for the new chat form
+  const [phoneDDI, setPhoneDDI] = useState('+55');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [contactName, setContactName] = useState('');
+  const [isCreatingChat, setIsCreatingChat] = useState(false);
+
 
   // Real-time conversations
   const conversationsQuery = query(
@@ -74,6 +83,19 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
         setSelectedConversation(null);
     }
   }, [conversations, selectedConversation]);
+  
+  // Effect to select a conversation when its ID is available
+  useEffect(() => {
+    const newConvId = sessionStorage.getItem('select-conv-id');
+    if (newConvId && conversations) {
+      const convToSelect = conversations.find(c => c.id === newConvId);
+      if (convToSelect) {
+        setSelectedConversation(convToSelect as Conversation);
+        sessionStorage.removeItem('select-conv-id');
+      }
+    }
+  }, [conversations]);
+
 
   const handleSendMessage = async (conversationId: string, messageContent: string) => {
     if (!loggedInUser) return;
@@ -94,11 +116,35 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
     }
   }, [loggedInUser.id]);
 
-  const handleCreateNewChat = (event: React.FormEvent) => {
+  const handleCreateNewChat = async (event: React.FormEvent) => {
     event.preventDefault();
-    // Logic to create new chat here
-    console.log("Novo chat criado!");
-    setIsNewChatDialogOpen(false);
+    if (!phoneNumber) return;
+    setIsCreatingChat(true);
+
+    try {
+      const fullPhoneNumber = `${phoneDDI}${phoneNumber}`;
+      const newConversationId = await createOrGetConversationByPhone(loggedInUser.id, fullPhoneNumber, contactName);
+
+      // We use sessionStorage because the conversations list is updated via a real-time listener.
+      // We can't immediately select the conversation as it might not be in the local state yet.
+      // So we store the ID and an effect will pick it up and select it once it appears.
+      sessionStorage.setItem('select-conv-id', newConversationId);
+      
+      // Reset form and close dialog
+      setPhoneNumber('');
+      setContactName('');
+      setIsNewChatDialogOpen(false);
+
+    } catch (error) {
+      console.error("Error creating new chat:", error);
+      toast({
+        title: "Erro ao Criar Conversa",
+        description: "Não foi possível iniciar uma nova conversa. Tente novamente.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsCreatingChat(false);
+    }
   }
   
   const enrichedSelectedConversation = selectedConversation ? {
@@ -167,7 +213,7 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
                         <div className="space-y-2">
                             <Label htmlFor="phone">Telefone</Label>
                             <div className="flex gap-2">
-                                <Select defaultValue="+55">
+                                <Select value={phoneDDI} onValueChange={setPhoneDDI}>
                                 <SelectTrigger className="w-[80px]">
                                     <SelectValue placeholder="DDI" />
                                 </SelectTrigger>
@@ -180,16 +226,32 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
                                     </SelectGroup>
                                 </SelectContent>
                                 </Select>
-                                <Input id="phone" placeholder="DDD + Número" className="flex-1" required />
+                                <Input 
+                                    id="phone" 
+                                    placeholder="DDD + Número" 
+                                    className="flex-1" 
+                                    required 
+                                    value={phoneNumber}
+                                    onChange={(e) => setPhoneNumber(e.target.value)}
+                                    disabled={isCreatingChat}
+                                />
                             </div>
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="name">Nome (Opcional)</Label>
-                             <Input id="name" placeholder="Nome do contato" />
+                             <Input 
+                                id="name" 
+                                placeholder="Nome do contato" 
+                                value={contactName}
+                                onChange={(e) => setContactName(e.target.value)}
+                                disabled={isCreatingChat}
+                            />
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button type="submit">Iniciar Conversa</Button>
+                        <Button type="submit" disabled={isCreatingChat}>
+                            {isCreatingChat ? 'Iniciando...' : 'Iniciar Conversa'}
+                        </Button>
                     </DialogFooter>
                 </form>
             </DialogContent>
