@@ -2,11 +2,10 @@
 'use client';
 
 import {
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet"
+    SheetHeader,
+    SheetTitle,
+    SheetDescription,
+  } from "@/components/ui/sheet"
 import type { Conversation, User, Message } from "@/lib/types";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Badge } from "./ui/badge";
@@ -24,9 +23,10 @@ import { ptBR } from "date-fns/locale";
 interface ClientProfileSheetProps {
     conversation: (Conversation & { messages: Message[] }) | null;
     agent: User | null;
+    onClose: () => void;
 }
 
-export function ClientProfileSheet({ conversation, agent }: ClientProfileSheetProps) {
+export function ClientProfileSheet({ conversation, agent, onClose }: ClientProfileSheetProps) {
     if (!conversation) return null;
 
     const internalNotes = conversation.messages.filter(msg => msg.type === 'note');
@@ -35,27 +35,35 @@ export function ClientProfileSheet({ conversation, agent }: ClientProfileSheetPr
         if (!timestamp) return null;
         if (timestamp instanceof Date) return timestamp;
         if (typeof timestamp.toDate === 'function') return timestamp.toDate();
-        return toDate(timestamp);
+        try {
+            return toDate(timestamp);
+        } catch (error) {
+            return null;
+        }
     }
 
     return (
-        <SheetContent side="right" className="p-0 sm:max-w-sm w-full flex flex-col gap-0 border-l">
+        <aside className="w-96 bg-background border-l flex flex-col h-full">
+            <header className="p-4 border-b flex items-center justify-between">
+                <h3 className="font-semibold text-lg">Ficha do Cliente</h3>
+                <Button variant="ghost" size="icon" onClick={onClose}>
+                    <X className="w-4 h-4" />
+                </Button>
+            </header>
             <ScrollArea className="flex-1">
                 <div className="p-4">
-                    <SheetHeader className="text-left mb-6">
-                        <div className="flex items-center gap-4">
-                            <Avatar className="w-14 h-14 border-2 border-primary">
-                                <AvatarImage src={conversation.clientAvatarUrl} alt={conversation.clientName} />
-                                <AvatarFallback>{conversation.clientName.charAt(0)}</AvatarFallback>
-                            </Avatar>
-                            <div>
-                                <SheetTitle className="text-xl">{conversation.clientName}</SheetTitle>
-                                <SheetDescription>
-                                    ID: {conversation.clientId}
-                                </SheetDescription>
-                            </div>
+                    <div className="text-center mb-6">
+                        <Avatar className="w-20 h-20 border-2 border-primary mx-auto mb-2">
+                            <AvatarImage src={conversation.clientAvatarUrl} alt={conversation.clientName} />
+                            <AvatarFallback>{conversation.clientName.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                            <h2 className="text-xl font-bold">{conversation.clientName}</h2>
+                            <p className="text-sm text-muted-foreground">
+                                ID: {conversation.clientId}
+                            </p>
                         </div>
-                    </SheetHeader>
+                    </div>
 
                     <div className="space-y-4">
                         {/* Responsible Agent */}
@@ -131,7 +139,7 @@ export function ClientProfileSheet({ conversation, agent }: ClientProfileSheetPr
                             </CardHeader>
                              <CardContent className="p-4 pt-0">
                                 {internalNotes.length > 0 ? (
-                                    <div className="space-y-3">
+                                    <div className="space-y-3 max-h-48 overflow-y-auto">
                                         {internalNotes.map(note => {
                                             const formattedDate = formatTimestamp(note.timestamp);
                                             return (
@@ -156,6 +164,6 @@ export function ClientProfileSheet({ conversation, agent }: ClientProfileSheetPr
                     </div>
                 </div>
             </ScrollArea>
-        </SheetContent>
+        </aside>
     );
 }

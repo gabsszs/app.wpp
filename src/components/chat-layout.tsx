@@ -7,8 +7,8 @@ import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar'
 import { ConversationList } from './conversation-list';
 import { ChatView } from './chat-view';
 import { sendMessage, markMessagesAsRead, createOrGetConversationByPhone, getConversationsForAgent } from '@/lib/firestore';
+import { collection, query, orderBy, doc } from 'firebase/firestore';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
-import { collection, query, where, orderBy, doc, collectionGroup } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Skeleton } from './ui/skeleton';
 import {
@@ -17,7 +17,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog"
 import { ContactsView } from './contacts-view';
@@ -30,11 +29,11 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
 import { useToast } from '@/hooks/use-toast';
+import { ClientProfileSheet } from './client-profile-sheet';
 
 
 interface ChatLayoutProps {
@@ -49,6 +48,8 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
   const [isContactsDialogOpen, setIsContactsDialogOpen] = useState(false);
   const [isNewChatDialogOpen, setIsNewChatDialogOpen] = useState(false);
   const { toast } = useToast();
+
+  const [isProfileSheetOpen, setIsProfileSheetOpen] = useState(false);
 
   // State for the new chat form
   const [phoneDDI, setPhoneDDI] = useState('+55');
@@ -68,23 +69,18 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
 
   // Fetch initial conversations
   useEffect(() => {
-    const fetchConversations = async () => {
-      setLoadingConversations(true);
-      try {
-        const convs = await getConversationsForAgent(loggedInUser.id);
+    setLoadingConversations(true);
+    getConversationsForAgent(loggedInUser.id)
+      .then(convs => {
         setConversations(convs);
-        if (convs.length > 0 && !selectedConversation) {
-          // Do not auto-select a conversation
-        }
-      } catch (error) {
+      })
+      .catch(error => {
         console.error("Error fetching conversations:", error);
         toast({ title: "Erro ao carregar conversas", variant: "destructive" });
-      } finally {
+      })
+      .finally(() => {
         setLoadingConversations(false);
-      }
-    };
-
-    fetchConversations();
+      });
   }, [loggedInUser.id, toast]);
 
 
@@ -124,7 +120,6 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
       let convToSelect = conversations.find(c => c.id === newConversationId);
 
       if (isNew || !convToSelect) {
-        // If it's a new conversation, create a local representation to add to the state
         const now = new Date();
         const newConvData: Conversation = {
             id: newConversationId,
@@ -139,14 +134,12 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
             messages: [],
             tags: [],
         };
-        const updatedConversations = [newConvData, ...conversations];
-        setConversations(updatedConversations);
+        setConversations(prev => [newConvData, ...prev]);
         convToSelect = newConvData;
       }
       
       setSelectedConversation(convToSelect);
       
-      // Reset form and close dialog
       setPhoneNumber('');
       setContactName('');
       setIsNewChatDialogOpen(false);
@@ -169,10 +162,16 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
       [conversationId]: { message, type }
     }));
   };
+
+  useEffect(() => {
+    if (selectedConversation) {
+        setIsProfileSheetOpen(false);
+    }
+  }, [selectedConversation])
   
   const enrichedSelectedConversation = selectedConversation ? {
       ...selectedConversation,
-      messages: messages as Message[] || [], // Combine conversation data with real-time messages
+      messages: messages as Message[] || [],
   } : null;
 
    if (loadingConversations) {
@@ -195,7 +194,6 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
 
   return (
     <SidebarProvider defaultOpen>
-        {/* Contacts Dialog */}
         <Dialog open={isContactsDialogOpen} onOpenChange={setIsContactsDialogOpen}>
             <DialogContent className="max-w-4xl h-[90vh] flex flex-col p-0 overflow-hidden">
                 <div className="p-6 pb-0">
@@ -220,7 +218,6 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
             </DialogContent>
         </Dialog>
 
-        {/* New Chat Dialog */}
         <Dialog open={isNewChatDialogOpen} onOpenChange={setIsNewChatDialogOpen}>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
@@ -290,18 +287,28 @@ export default function ChatLayout({ loggedInUser }: ChatLayoutProps) {
             onOpenNewChat={() => setIsNewChatDialogOpen(true)}
           />
         </Sidebar>
-        <SidebarInset className="flex-1">
-          <ChatView
-            conversation={enrichedSelectedConversation}
-            conversations={conversations}
-            loggedInUser={loggedInUser}
-            onSendMessage={handleSendMessage}
-            isLoadingMessages={loadingMessages}
-            onOpenContacts={() => setIsContactsDialogOpen(true)}
-            onOpenNewChat={() => setIsNewChatDialogOpen(true)}
-            draft={selectedConversation ? drafts[selectedConversation.id] : undefined}
-            onDraftChange={handleDraftChange}
-          />
+        <SidebarInset className="flex-1 flex overflow-hidden">
+            <div className='flex-1 flex flex-col'>
+                <ChatView
+                    conversation={enrichedSelectedConversation}
+                    conversations={conversations}
+                    loggedInUser={loggedInUser}
+                    onSendMessage={handleSendMessage}
+                    isLoadingMessages={loadingMessages}
+                    onOpenContacts={() => setIsContactsDialogOpen(true)}
+                    onOpenNewChat={() => setIsNewChatDialogOpen(true)}
+                    draft={selectedConversation ? drafts[selectedConversation.id] : undefined}
+                    onDraftChange={handleDraftChange}
+                    onToggleProfileSheet={() => setIsProfileSheetOpen(!isProfileSheetOpen)}
+                />
+            </div>
+            {isProfileSheetOpen && selectedConversation && (
+                <ClientProfileSheet 
+                    conversation={enrichedSelectedConversation} 
+                    agent={loggedInUser} 
+                    onClose={() => setIsProfileSheetOpen(false)}
+                />
+            )}
         </SidebarInset>
       </div>
     </SidebarProvider>
